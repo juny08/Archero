@@ -2,6 +2,7 @@
 
 
 #include "AHDefaultAIController.h"
+#include "AHEnemyCharacter.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
@@ -21,11 +22,16 @@ void AAHDefaultAIController::Tick(float DeltaSeconds)
 void AAHDefaultAIController::Move()
 {
 	APlayerController* asPlayer = GetWorld()->GetFirstPlayerController();
+	if (!asPlayer) return;
+
 	APawn* target = asPlayer->GetPawn();
 
-	if (asPlayer && target)
+	AAHEnemyCharacter* MyEnemy = Cast<AAHEnemyCharacter>(GetPawn());
+
+	if (target && MyEnemy)
 	{
-		float Distance = FVector::Dist(GetPawn()->GetActorLocation(), target->GetActorLocation());
+		float attackRange = MyEnemy->GetAttackRange();
+		float Distance = FVector::Dist(MyEnemy->GetActorLocation(), target->GetActorLocation());
 
 		if (Distance > attackRange)
 		{
@@ -36,8 +42,34 @@ void AAHDefaultAIController::Move()
 			StopMovement();
 
 			FVector LookDir = target->GetActorLocation() - GetPawn()->GetActorLocation();
-			LookDir.Z = 0.f; // 위아래로 기울어짐 방지
-			GetPawn()->SetActorRotation(LookDir.Rotation());
+			LookDir.Z = 0.f;
+			MyEnemy->SetActorRotation(LookDir.Rotation());
+
+			if (canAttack)
+			{
+				Attack();
+			}
 		}
 	}
+}
+
+void AAHDefaultAIController::Attack()
+{
+	AAHEnemyCharacter* MyEnemy = Cast<AAHEnemyCharacter>(GetPawn());
+	APlayerController* asPlayer = GetWorld()->GetFirstPlayerController();
+
+	if (MyEnemy && asPlayer && asPlayer->GetPawn())
+	{
+		canAttack = false;
+
+		MyEnemy->ExecuteAttack(asPlayer->GetPawn());
+
+		FTimerHandle CooldownTimerHandle;
+		GetWorldTimerManager().SetTimer(CooldownTimerHandle, this, &AAHDefaultAIController::ResetAttackCooldown, attackCooldown, false);
+	}
+}
+
+void AAHDefaultAIController::ResetAttackCooldown()
+{
+	canAttack = true;
 }

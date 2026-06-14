@@ -1,9 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#pragma region Header
 
 #include "AHPlayerCharacter.h"
 #include "AHEnemyCharacter.h"
 #include "AHProjectile.h"
+#include "AHPlayerState.h"
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -17,6 +19,10 @@
 
 #include "Engine/OverlapResult.h"
 #include "Engine/World.h"
+
+#pragma endregion
+
+#pragma region Init
 
 AAHPlayerCharacter::AAHPlayerCharacter()
 {
@@ -52,11 +58,43 @@ void AAHPlayerCharacter::BeginPlay()
             Subsystem->AddMappingContext(DefaultMappingContext, 0);
         }
     }
+
+    TArray<UAHSkillData*> TempSkills = Skills;
+    for (UAHSkillData* Skill : TempSkills)
+    {
+        if (Skill)
+        {
+            AddSkill(Skill);
+        }
+    }
 }
+
+#pragma endregion
 
 void AAHPlayerCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
+    if (IsRotatingToTarget)
+    {
+        // 현재 회전에서 목표 회전까지 부드럽게 이어주는 함수
+        FRotator CurrentRot = GetActorRotation();
+        FRotator SmoothRot = FMath::RInterpTo(CurrentRot, TargetLookRotation, DeltaTime, RotationSpeed);
+
+        SetActorRotation(SmoothRot);
+
+        if (ReadyToFire && CurrentRot.Equals(TargetLookRotation, 5.f))
+        {
+            ReadyToFire = false;
+            CurrentMultiShotCount = 0;
+            Fire();
+        }
+
+        if (CurrentRot.Equals(TargetLookRotation, 1.f))
+        {
+            IsRotatingToTarget = false;
+        }
+    }
 
     float CurrentSpeed = GetVelocity().Size();
 
@@ -64,7 +102,7 @@ void AAHPlayerCharacter::Tick(float DeltaTime)
     {
         if (!GetWorldTimerManager().IsTimerActive(AttackTimerHandle))
         {
-            GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AAHPlayerCharacter::Fire, AttackDelay, true, 0.1f);
+            GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AAHPlayerCharacter::Targeting, AttackDelay, true, 0.1f);
         }
     }
     else
@@ -72,6 +110,8 @@ void AAHPlayerCharacter::Tick(float DeltaTime)
         GetWorldTimerManager().ClearTimer(AttackTimerHandle);
     }
 }
+
+#pragma region 다른 클래스로 이동 예정
 
 void AAHPlayerCharacter::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)
 {
@@ -100,23 +140,68 @@ void AAHPlayerCharacter::Move(const FInputActionValue& Value)
     }
 }
 
-void AAHPlayerCharacter::Fire()
-{
-    AAHEnemyCharacter* Target = FindNearestEnemy();
+#pragma endregion
 
-    if (ProjectileClass && Target)
+#pragma region Fire
+
+void AAHPlayerCharacter::Targeting()
+{
+    
+    AAHEnemyCharacter* Target = FindNearestEnemy();
+    if (Target)
     {
         FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target->GetActorLocation());
-        SetActorRotation(FRotator(0.f, LookAtRot.Yaw, 0.f));
+        
+        //SetActorRotation(FRotator(0.f, LookAtRot.Yaw, 0.f)); <- 화면 끊김의 원인이었음
+        
+        TargetLookRotation = FRotator(0.f, LookAtRot.Yaw, 0.f);
+        IsRotatingToTarget = true;
 
-        FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 100.f;
+        ReadyToFire = true;
+    }
+}
+
+// AI
+void AAHPlayerCharacter::Fire()
+{
+    if (!ProjectileClass) return;
+
+    // --- 전방 화살 로직 ---
+    float ArrowInterval = 30.f; // 화살 사이의 가로 간격 (유닛 단위)
+
+    for (int i = 0; i < ForwardArrowCount; i++)
+    {
+        float CenterOffset = (ForwardArrowCount - 1) * 0.5f;
+        float SideOffset = (i - CenterOffset) * ArrowInterval;
+
+        // 현재 캐릭터가 바라보는 정면을 기준으로 스폰 위치와 방향 계산
+        FVector SpawnLocation = GetActorLocation()
+            + (GetActorForwardVector() * 100.f)
+            + (GetActorRightVector() * SideOffset);
+
         FRotator SpawnRotation = GetActorRotation();
 
         FActorSpawnParameters SpawnParams;
         SpawnParams.Owner = this;
         SpawnParams.Instigator = GetInstigator();
+        SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
         GetWorld()->SpawnActor<AAHProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
+    }
+
+    // --- 멀티샷 예약 ---
+    CurrentMultiShotCount++;
+
+    if (CurrentMultiShotCount < MultiShotCount)
+    {
+        FTimerHandle MultiShotTimerHandle;
+        GetWorldTimerManager().SetTimer(
+            MultiShotTimerHandle,
+            this,
+            &AAHPlayerCharacter::Fire,
+            MultiShotDelay,
+            false
+        );
     }
 }
 
@@ -163,3 +248,30 @@ AAHEnemyCharacter* AAHPlayerCharacter::FindNearestEnemy()
 //        SetActorRotation(FRotator(0.f, LookAtRot.Yaw, 0.f));
 //    }
 //}
+
+#pragma endregion
+
+void AAHPlayerCharacter::AddSkill(UAHSkillData* NewSkill)
+{
+    if (!NewSkill) return;
+
+    Skills.Add(NewSkill);
+
+    switch (NewSkill->effectType)
+    {
+    case ESkillEffectType::AddForwardArrow:
+        ForwardArrowCount += NewSkill->value;
+        break;
+    case ESkillEffectType::AddMultiShot:
+        MultiShotCount += NewSkill->value;
+        break;
+    }
+}
+
+void AAHPlayerCharacter::GainXp(float Amount)
+{
+    if (AAHPlayerState* PS = GetPlayerState<AAHPlayerState>())
+    {
+        PS->AddXp(Amount);
+    }
+}

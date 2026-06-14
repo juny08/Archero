@@ -4,6 +4,9 @@
 #include "AHDefaultCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/WidgetComponent.h"
+#include "Blueprint/UserWidget.h"
+#include "AHHPBarWidget.h"
 
 // Sets default values
 AAHDefaultCharacter::AAHDefaultCharacter()
@@ -30,6 +33,14 @@ AAHDefaultCharacter::AAHDefaultCharacter()
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
+	// HpBar
+	HpBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HpBar"));
+	HpBar->SetupAttachment(GetMesh());
+	HpBar->SetDrawSize(FVector2D(150.f, 20.f));
+	HpBar->SetRelativeLocation(FVector(0.f, 0.f, 200.f));
+	HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+
+
 	// 틱 사용
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
@@ -48,6 +59,7 @@ float AAHDefaultCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 	if (IsValid(EventInstigator) && EventInstigator == GetController()) { return 0; } // 본인공격 무효
 
 	HealthCurrent -= DamageAmount;
+	UpdateHpBar();
 
 	if (HealthCurrent <= 0)
 	{
@@ -61,6 +73,19 @@ void AAHDefaultCharacter::OnDeath()
 	if (DeathMontage)
 	{
 		PlayAnimMontage(DeathMontage);
+	}
+}
+
+void AAHDefaultCharacter::UpdateHpBar()
+{
+	if (HpBar)
+	{
+		UAHHpBarWidget* HpWidget = Cast<UAHHpBarWidget>(HpBar->GetUserWidgetObject());
+		if (HpWidget)
+		{
+			float Percent = HealthCurrent / HealthMax;
+			HpWidget->SetHpPercent(Percent);
+		}
 	}
 }
 

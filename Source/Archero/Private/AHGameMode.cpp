@@ -3,11 +3,16 @@
 
 #include "AHGameMode.h"
 #include "AHPlayerCharacter.h"
+#include "AHPlayerState.h"
+#include "AHGameState.h"
 #include "UObject/ConstructorHelpers.h"
 
 AAHGameMode::AAHGameMode()
 {
 	//PlayerControllerClass = AVSPlayerController::StaticClass();
+	PlayerStateClass = AAHPlayerState::StaticClass();
+	GameStateClass = AAHGameState::StaticClass();
+
 
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/ArcHero/Blueprints/BP_AHPlayer.BP_AHPlayer_C"));
 

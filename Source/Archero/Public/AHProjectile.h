@@ -14,6 +14,10 @@ class ARCHERO_API AAHProjectile : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AAHProjectile();
+	
+public:
+	UPROPERTY(EditAnywhere, Category = "Status")
+	float Damage = 20.f;
 
 protected:
 	// Called when the game starts or when spawned
@@ -28,11 +32,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UProjectileMovementComponent* ProjectileMovement;
 
-	UPROPERTY(EditAnywhere, Category = "Status")
-	float Damage = 20.f;
-
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void OnProjectileOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

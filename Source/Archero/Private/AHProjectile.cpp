@@ -17,7 +17,9 @@ AAHProjectile::AAHProjectile()
 	RootComponent = SphereComp;
 	SphereComp->InitSphereRadius(15.0f);
 
-	SphereComp->SetCollisionProfileName(TEXT("BlockAllDynamic"));
+	//SphereComp->SetCollisionProfileName(TEXT("BlockAllDynamic"));
+	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	SphereComp->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetupAttachment(RootComponent);
@@ -29,7 +31,8 @@ AAHProjectile::AAHProjectile()
 	ProjectileMovement->bRotationFollowsVelocity = true; // 날아가는 방향으로 회전
 	ProjectileMovement->ProjectileGravityScale = 0.f;    // 중력 영향 0
 
-	SphereComp->OnComponentHit.AddDynamic(this, &AAHProjectile::OnHit);
+	//SphereComp->OnComponentHit.AddDynamic(this, &AAHProjectile::OnHit);
+	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &AAHProjectile::OnProjectileOverlap);
 }
 
 // Called when the game starts or when spawned
@@ -39,9 +42,16 @@ void AAHProjectile::BeginPlay()
 	
 }
 
-void AAHProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void AAHProjectile::OnProjectileOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherActor != this && OtherActor != GetOwner())
+	if (!OtherActor) return;
+
+
+	bool IsSelf = (OtherActor == this);
+	bool IsOwner = (OtherActor == GetOwner());
+	bool IsProjectile = OtherActor->IsA(AAHProjectile::StaticClass());
+
+	if (!IsSelf && !IsOwner && !IsProjectile)
 	{
 		UGameplayStatics::ApplyDamage(OtherActor, Damage, GetInstigatorController(), this, UDamageType::StaticClass());
 

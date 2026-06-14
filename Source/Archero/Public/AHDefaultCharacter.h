@@ -21,6 +21,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status", meta = (AllowAbstract = "true"))
 	TObjectPtr<UAnimMontage> DeathMontage;
+
+	UPROPERTY(VisibleAnywhere, Category = "UI")
+	class UWidgetComponent* HpBar;
+
 public:
 	// Sets default values for this character's properties
 	AAHDefaultCharacter();
@@ -30,6 +34,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void OnDeath();
+
+	void UpdateHpBar();
 
 public:	
 	virtual float TakeDamage

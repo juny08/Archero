@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AHDefaultCharacter.h"
+#include "AHSkillData.h"
 #include "InputActionValue.h"
 #include "AHPlayerCharacter.generated.h"
 
@@ -16,6 +17,7 @@ class ARCHERO_API AAHPlayerCharacter : public AAHDefaultCharacter
 	GENERATED_BODY()
 public:
     AAHPlayerCharacter();
+
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
     class USpringArmComponent* CameraBoom;
@@ -35,12 +37,30 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float AttackDelay = 0.5f;
 
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float RotationSpeed = 30.f;
+
+	UPROPERTY(EditAnywhere, Category = "Skill")
+	TArray<UAHSkillData*> Skills;
+
+	UPROPERTY(EditAnywhere, Category = "Skill")
+	float MultiShotDelay = 0.15f;
+
+	int ForwardArrowCount;
+	int MultiShotCount;
+
+	int CurrentMultiShotCount = 0;
+
 	bool IsMove;
 
 	FTimerHandle AttackTimerHandle;
 
+	FRotator TargetLookRotation;
+	bool IsRotatingToTarget = false;
 
+	bool ReadyToFire = false;
 
+protected:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
@@ -49,10 +69,16 @@ protected:
 
 	void Move(const FInputActionValue& Value);
 	
+	void Targeting();
+
 	void Fire();
 
 	class AAHEnemyCharacter* FindNearestEnemy();
 
 	//void AutoTargeting();
 
+	void AddSkill(UAHSkillData* NewSkill);
+
+public:
+	void GainXp(float Amount);
 };
