@@ -59,8 +59,7 @@ void AAHPlayerCharacter::BeginPlay()
         }
     }
 
-    TArray<UAHSkillData*> TempSkills = Skills;
-    for (UAHSkillData* Skill : TempSkills)
+    for (UAHSkillData* Skill : InitialSkills)
     {
         if (Skill)
         {
@@ -75,7 +74,7 @@ void AAHPlayerCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    if (IsRotatingToTarget)
+    if (bIsRotatingToTarget)
     {
         // 현재 회전에서 목표 회전까지 부드럽게 이어주는 함수
         FRotator CurrentRot = GetActorRotation();
@@ -83,16 +82,16 @@ void AAHPlayerCharacter::Tick(float DeltaTime)
 
         SetActorRotation(SmoothRot);
 
-        if (ReadyToFire && CurrentRot.Equals(TargetLookRotation, 5.f))
+        if (bReadyToFire && CurrentRot.Equals(TargetLookRotation, 5.f))
         {
-            ReadyToFire = false;
+            bReadyToFire = false;
             CurrentMultiShotCount = 0;
             Fire();
         }
 
         if (CurrentRot.Equals(TargetLookRotation, 1.f))
         {
-            IsRotatingToTarget = false;
+            bIsRotatingToTarget = false;
         }
     }
 
@@ -155,9 +154,9 @@ void AAHPlayerCharacter::Targeting()
         //SetActorRotation(FRotator(0.f, LookAtRot.Yaw, 0.f)); <- 화면 끊김의 원인이었음
         
         TargetLookRotation = FRotator(0.f, LookAtRot.Yaw, 0.f);
-        IsRotatingToTarget = true;
+        bIsRotatingToTarget = true;
 
-        ReadyToFire = true;
+        bReadyToFire = true;
     }
 }
 
@@ -194,7 +193,6 @@ void AAHPlayerCharacter::Fire()
 
     if (CurrentMultiShotCount < MultiShotCount)
     {
-        FTimerHandle MultiShotTimerHandle;
         GetWorldTimerManager().SetTimer(
             MultiShotTimerHandle,
             this,
@@ -255,7 +253,7 @@ void AAHPlayerCharacter::AddSkill(UAHSkillData* NewSkill)
 {
     if (!NewSkill) return;
 
-    Skills.Add(NewSkill);
+    ActiveSkills.Add(NewSkill);
 
     switch (NewSkill->effectType)
     {

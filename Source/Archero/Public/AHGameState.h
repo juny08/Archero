@@ -12,39 +12,65 @@ class ARCHERO_API AAHGameState : public AGameStateBase
 	GENERATED_BODY()
 
 protected:
-	class AAHPlayerCharacter* player = nullptr;
+	UPROPERTY()
+	class AAHPlayerCharacter* Player = nullptr;
 
+	// UI Class
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<class UAHPlayWidget> PlayWidgetClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<class UUserWidget> LevelUpWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<class UAHJoyStickWidget> JoystickWidgetClass;
+
+	// UI Instance
+	UPROPERTY()
+	class UAHPlayWidget* PlayWidgetInstance = nullptr;
+
+	UPROPERTY()
+	class UAHJoyStickWidget* JoystickWidgetInstance = nullptr;
+
+	UPROPERTY()
+	class UUserWidget* LevelUpWidgetInstance = nullptr;
+
+	// Rules
 	UPROPERTY(VisibleAnywhere, Category = "GameRules")
-	int currentStage = 1;
+	int CurrentStage = 1;
 
 	UPROPERTY(VisibleAnywhere, Category = "GameRules")
-	int remainingMonsters = 0;
+	int RemainingMonsters = 0;
 
 	UPROPERTY(VisibleAnywhere, Category = "GameRules")
-	int currentWave = 1;
+	int CurrentWave = 1;
 
 	UPROPERTY(EditAnywhere, Category = "GameRules")
-	int maxWaves = 3;
+	int MaxWaves = 3;
 	
 public:
 	AAHGameState();
 
 	virtual void BeginPlay() override;
 
-	// 스테이지 제어 함수들
-	void NextStage();
-	int GetCurrentStage() const { return currentStage; }
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	UAHJoyStickWidget* GetJoystickWidget() const { return JoystickWidgetInstance; }
 
-	// 몬스터 마리수 관리
+	// 게임 Rule
 	void MonsterSpawned();
 	void MonsterKilled();
-	int GetRemainingMonsters() const { return remainingMonsters; }
+	int GetRemainingMonsters() const { return RemainingMonsters; }
+	int GetCurrentStage() const { return CurrentStage; }
+
+	UFUNCTION(BlueprintCallable, Category = "GameRules")
+	void LevelUpPause();
+
+	UFUNCTION(BlueprintCallable, Category = "GameRules")
+	void ResumeGame();
 
 protected:
+	void InitializeUI();
 	void StartNextWave();
 	void MoveToNextLevel();
-
+	void NextStage();
 };

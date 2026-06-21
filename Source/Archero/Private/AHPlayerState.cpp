@@ -2,6 +2,7 @@
 
 
 #include "AHPlayerState.h"
+#include "AHGameState.h"
 
 void AAHPlayerState::AddXp(float Amount)
 {
@@ -18,6 +19,11 @@ void AAHPlayerState::AddXp(float Amount)
 		if (OnLevelUp.IsBound())
 		{
 			OnLevelUp.Broadcast(level);
+		}
+
+		if (AAHGameState* GS = GetWorld()->GetGameState<AAHGameState>())
+		{
+			GS->LevelUpPause();
 		}
 	}
 

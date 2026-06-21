@@ -18,7 +18,8 @@ public class Archero : ModuleRules
 			"StateTreeModule",
 			"GameplayStateTreeModule",
 			"UMG",
-			"Slate"
+            "SlateCore",
+            "Slate"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

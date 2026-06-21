@@ -41,24 +41,29 @@ protected:
 	float RotationSpeed = 30.f;
 
 	UPROPERTY(EditAnywhere, Category = "Skill")
-	TArray<UAHSkillData*> Skills;
+	TArray<UAHSkillData*> InitialSkills;
+
+	UPROPERTY(VisibleAnywhere, Category = "Skill")
+	TArray<UAHSkillData*> ActiveSkills;
 
 	UPROPERTY(EditAnywhere, Category = "Skill")
 	float MultiShotDelay = 0.15f;
 
-	int ForwardArrowCount;
-	int MultiShotCount;
+	int ForwardArrowCount = 1;
+	int MultiShotCount = 1;
 
 	int CurrentMultiShotCount = 0;
 
-	bool IsMove;
+	bool bIsMove;
 
 	FTimerHandle AttackTimerHandle;
+	FTimerHandle MultiShotTimerHandle;
+
 
 	FRotator TargetLookRotation;
-	bool IsRotatingToTarget = false;
+	bool bIsRotatingToTarget = false;
 
-	bool ReadyToFire = false;
+	bool bReadyToFire = false;
 
 protected:
 	virtual void BeginPlay() override;
@@ -77,8 +82,8 @@ protected:
 
 	//void AutoTargeting();
 
-	void AddSkill(UAHSkillData* NewSkill);
 
 public:
 	void GainXp(float Amount);
+	void AddSkill(UAHSkillData* NewSkill);
 };
