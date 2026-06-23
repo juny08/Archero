@@ -4,28 +4,55 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "AHEnemySpawnPoint.h"
+#include "AHEnemyCharacter.h"
 #include "AHWaveManager.generated.h"
+
+USTRUCT(BlueprintType)
+struct FWaveData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AAHEnemyCharacter> EnemyClass;
+
+	UPROPERTY(EditAnywhere)
+	int Count = 5;
+
+	UPROPERTY(EditAnywhere)
+	float SpawnInterval = 0.f;
+};
 
 UCLASS()
 class ARCHERO_API AAHWaveManager : public AActor
 {
 	GENERATED_BODY()
 
-public:
-	void StartWave(int WaveIndex);
-	void SpawnEnemy();
-	void OnEnemyKilled();
-
-private:
-	int AliveEnemies;
-
-public:	
-	AAHWaveManager();
-
 protected:
 	virtual void BeginPlay() override;
 
-public:	
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditAnywhere, Category = "Wave")
+	TArray<FWaveData> Waves;
+
+	UPROPERTY(EditAnywhere, Category = "Wave")
+	TArray<AAHEnemySpawnPoint*> SpawnPoints;
+
+private:
+	class AAHGameState* GS;
+
+public:
+	AAHWaveManager();
+	void OnEnemyKilled();
+
+private:
+	int CurrentWaveIndex;
+	int AliveEnemies;
+
+	FTimerHandle SpawnTimerHandle;
+	int SpawnedCount;
+
+	void StartWave();
+	void SpawnEnemy();
+
 
 };

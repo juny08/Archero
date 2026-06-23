@@ -21,13 +21,37 @@ protected:
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
 
-private:
-    UPROPERTY()
-    class UAHJoyStickWidget* JoystickWidget = nullptr;
+protected:
+	// UI Class
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<class UAHPlayWidget> PlayWidgetClass;
 
-    // BeginPlay에서 GameState → 조이스틱 참조 획득
-    void CacheJoystickWidget();
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<class UAHLevelUpWidget> LevelUpWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<class UAHJoyStickWidget> JoystickWidgetClass;
+
+	// UI Instance
+	UPROPERTY()
+	class UAHPlayWidget* PlayWidgetInstance = nullptr;
+
+	UPROPERTY()
+	class UAHJoyStickWidget* JoystickWidgetInstance = nullptr;
+
+	UPROPERTY()
+	class UAHLevelUpWidget* LevelUpWidgetInstance = nullptr;
+
+private:
+	void InitializeUI();
 
     // Tick에서 호출: 조이스틱 값 → 캐릭터 이동
     void ApplyMovementInput(float DeltaTime);
+
+public:
+	void ShowLevelUpUI();
+	void HideLevelUpUI();
+
+	UFUNCTION()
+	void OnLevelUp(int NewLevel);
 };

@@ -2,9 +2,11 @@
 
 
 #include "AHPlayerController.h"
-#include "AHGameState.h"
+#include "AHPlayerState.h"
 #include "AHJoyStickWidget.h"
-#include "AHPlayerCharacter.h"
+#include "AHLevelUpWidget.h"
+#include "AHPlayWidget.h"
+#include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 
 AAHPlayerController::AAHPlayerController()
@@ -15,11 +17,12 @@ AAHPlayerController::AAHPlayerController()
 void AAHPlayerController::BeginPlay()
 {
     Super::BeginPlay();
+    InitializeUI();
 
-    // GameState가 UI를 먼저 초기화하므로 한 프레임 뒤에 참조를 가져옴
-    FTimerHandle TempHandle;
-    GetWorldTimerManager().SetTimer(TempHandle, this,
-        &AAHPlayerController::CacheJoystickWidget, 0.1f, false);
+	if (AAHPlayerState* PS = GetPlayerState<AAHPlayerState>())
+	{
+		PS->OnLevelUp.AddDynamic(this, &AAHPlayerController::OnLevelUp);
+	}
 }
 
 void AAHPlayerController::Tick(float DeltaTime)
@@ -28,23 +31,14 @@ void AAHPlayerController::Tick(float DeltaTime)
     ApplyMovementInput(DeltaTime);
 }
 
-void AAHPlayerController::CacheJoystickWidget()
-{
-    AAHGameState* GS = GetWorld()->GetGameState<AAHGameState>();
-    if (GS)
-    {
-        JoystickWidget = GS->GetJoystickWidget();
-    }
-}
-
 void AAHPlayerController::ApplyMovementInput(float DeltaTime)
 {
-    if (!JoystickWidget || !JoystickWidget->bIsActive) return;
+    if (!JoystickWidgetInstance || !JoystickWidgetInstance->bIsActive) return;
 
     ACharacter* Char = GetCharacter();
     if (!Char) return;
 
-    FVector2D Axis = JoystickWidget->JoystickAxis;
+    FVector2D Axis = JoystickWidgetInstance->JoystickAxis;
     if (Axis.IsNearlyZero()) return;
 
     FVector MoveDir = FVector(-Axis.Y, Axis.X, 0.f); // ← X↔Y 스왑
@@ -58,3 +52,82 @@ void AAHPlayerController::ApplyMovementInput(float DeltaTime)
             FMath::RInterpTo(Char->GetActorRotation(), TargetRot, DeltaTime, 10.f));
     }
 }
+
+#pragma region UI
+
+void AAHPlayerController::InitializeUI()
+{
+	// Play Widget
+	if (PlayWidgetClass)
+	{
+		PlayWidgetInstance = CreateWidget<UAHPlayWidget>(this, PlayWidgetClass);
+		if (PlayWidgetInstance)
+		{
+			PlayWidgetInstance->AddToViewport(0);
+		}
+	}
+
+	// Joystick
+	if (JoystickWidgetClass)
+	{
+		JoystickWidgetInstance = CreateWidget<UAHJoyStickWidget>(this, JoystickWidgetClass);
+		if (JoystickWidgetInstance)
+		{
+			JoystickWidgetInstance->AddToViewport(1);
+		}
+	}
+
+	FInputModeGameAndUI InputMode;
+	SetInputMode(InputMode);
+	bShowMouseCursor = true;
+	//bShowMouseCursor = false;
+#if PLATFORM_ANDROID || PLATFORM_IOS
+	bShowMouseCursor = false;
+#else
+	bShowMouseCursor = true;
+#endif
+}
+
+void AAHPlayerController::ShowLevelUpUI()
+{
+	if (!LevelUpWidgetClass) return;
+
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+
+	LevelUpWidgetInstance = CreateWidget<UAHLevelUpWidget>(this, LevelUpWidgetClass);
+	if (LevelUpWidgetInstance)
+	{
+		LevelUpWidgetInstance->AddToViewport(10);
+	}
+
+	FInputModeUIOnly Mode;
+	SetInputMode(Mode);
+	bShowMouseCursor = true;
+}
+
+void AAHPlayerController::HideLevelUpUI()
+{
+	if (LevelUpWidgetInstance)
+	{
+		LevelUpWidgetInstance->RemoveFromParent();
+		LevelUpWidgetInstance = nullptr;
+	}
+
+	FInputModeGameAndUI Mode;
+	SetInputMode(Mode);
+	//bShowMouseCursor = false;
+#if PLATFORM_ANDROID || PLATFORM_IOS
+	bShowMouseCursor = false;
+#else
+	bShowMouseCursor = true;
+#endif
+
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+}
+
+void AAHPlayerController::OnLevelUp(int NewLevel)
+{
+	ShowLevelUpUI();
+}
+
+#pragma endregion

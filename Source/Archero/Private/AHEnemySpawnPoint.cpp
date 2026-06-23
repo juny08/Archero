@@ -6,9 +6,7 @@
 AAHEnemySpawnPoint::AAHEnemySpawnPoint()
 {
 	PrimaryActorTick.bCanEverTick = false;
-}
 
-FVector AAHEnemySpawnPoint::GetSpawnLocation()
-{
-	return FVector();
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
 }

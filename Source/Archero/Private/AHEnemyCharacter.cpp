@@ -4,7 +4,7 @@
 #include "AHEnemyCharacter.h"
 #include "AHPlayerCharacter.h"
 #include "AHDefaultAIController.h"
-#include "AHGameState.h"
+#include "AHWaveManager.h"
 #include "AHProjectile.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -53,11 +53,10 @@ void AAHEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AAHGameState* GS = GetWorld()->GetGameState<AAHGameState>();
-	if (GS)
-	{
-		GS->MonsterSpawned(); // 생성될 때 카운트 +1
-	}
+	//if (AAHWaveManager* WM = Cast<AAHWaveManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AAHWaveManager::StaticClass())))
+	//{
+	//	WM->SpawnEnemy();
+	//}
 }
 
 void AAHEnemyCharacter::OnDeath()
@@ -71,9 +70,9 @@ void AAHEnemyCharacter::OnDeath()
 		player->GainXp(dropXp);
 	}
 
-	if (AAHGameState* GS = GetWorld()->GetGameState<AAHGameState>())
+	if (AAHWaveManager* WM = Cast<AAHWaveManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AAHWaveManager::StaticClass())))
 	{
-		GS->MonsterKilled(); // 죽을 때 카운트 -1 -> 0이 되면 클리어!
+		WM->OnEnemyKilled();
 	}
 
 	SetLifeSpan(0.1f); //일정시간 후 사라지기

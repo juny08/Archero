@@ -3,7 +3,7 @@
 
 #include "AHLevelUpWidget.h"
 #include "AHPlayerCharacter.h"
-#include "AHGameState.h"
+#include "AHPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 
 void UAHLevelUpWidget::OnSkillSelected(UAHSkillData * SelectedSkill)
@@ -18,9 +18,9 @@ void UAHLevelUpWidget::OnSkillSelected(UAHSkillData * SelectedSkill)
     }
 
     // 게임 재개
-    if (AAHGameState* GS = GetWorld()->GetGameState<AAHGameState>())
+    if (AAHPlayerController* PC = Cast<AAHPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
     {
-        GS->ResumeGame();
+        PC->HideLevelUpUI();
     }
 }
 
@@ -32,16 +32,17 @@ void UAHLevelUpWidget::RollRandomSkills()
     TArray<UAHSkillData*> Shuffled = SkillPool;
 
     // Fisher-Yates 셔플
-    for (int32 i = Shuffled.Num() - 1; i > 0; i--)
+    for (int i = Shuffled.Num() - 1; i > 0; i--)
     {
-        int32 j = FMath::RandRange(0, i);
+        int j = FMath::RandRange(0, i);
         Shuffled.Swap(i, j);
     }
 
     // 앞에서 3개만 자르기
-    int32 Count = FMath::Min(3, Shuffled.Num());
+    int Count = FMath::Min(3, Shuffled.Num());
+
     TArray<UAHSkillData*> RolledSkills;
-    for (int32 i = 0; i < Count; i++)
+    for (int i = 0; i < Count; i++)
     {
         RolledSkills.Add(Shuffled[i]);
     }
