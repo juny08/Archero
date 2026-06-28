@@ -1,5 +1,6 @@
 #include "AHWaveManager.h"
 #include "AHGameState.h"
+#include "AHEnemySpawnPoint.h"
 #include "Kismet/GameplayStatics.h"
 
 AAHWaveManager::AAHWaveManager()
@@ -13,53 +14,88 @@ void AAHWaveManager::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// MaxWave 찾기
+	for (AAHEnemySpawnPoint* Point : SpawnPoints)
+	{
+		if (Point)
+		{
+			MaxWave = FMath::Max(MaxWave, Point->SpawnWave);
+		}
+	}
+
+	// 스폰설정
+	SpawnPoints.Empty();
+
+	TArray<AActor*> FoundActors;
+
+	UGameplayStatics::GetAllActorsOfClass(
+		GetWorld(), 
+		AAHEnemySpawnPoint::StaticClass(), 
+		FoundActors
+	);
+	
+	for (AActor* Actor : FoundActors)
+	{ 
+		AAHEnemySpawnPoint* Point = Cast<AAHEnemySpawnPoint>(Actor);
+
+		if (Point)
+			SpawnPoints.Add(Point);
+	}
+
 	GS = GetWorld()->GetGameState<AAHGameState>();
+	
 	StartWave();
 }
 
 void AAHWaveManager::StartWave()
 {
-	if (!Waves.IsValidIndex(CurrentWaveIndex)) return;
-
-	const FWaveData& Wave = Waves[CurrentWaveIndex];
-
-	SpawnedCount = 0;
 	AliveEnemies = 0;
+
+	
 
 	if (GS)
 	{
 		GS->CurrentWave = CurrentWaveIndex + 1;
-		GS->SetRemainingMonsters(Wave.Count);
 	}
 
-	GetWorldTimerManager().SetTimer(
-		SpawnTimerHandle,
-		this,
-		&AAHWaveManager::SpawnEnemy,
-		Wave.SpawnInterval,
-		true
-	);
+	SpawnEnemies();
 }
 
-void AAHWaveManager::SpawnEnemy()
+void AAHWaveManager::SpawnEnemies()
 {
-	const FWaveData& Wave = Waves[CurrentWaveIndex];
+	int CurrentWave = CurrentWaveIndex + 1;
 
-	if (SpawnedCount >= Wave.Count)
+	for (AAHEnemySpawnPoint* Point : SpawnPoints)
 	{
-		GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
-		return;
+		if (!Point) continue;
+
+		// 현재 웨이브에 해당하는 스폰포인트만
+		if (Point->SpawnWave != CurrentWave) continue;
+		if (!Point->EnemyClass) continue;
+
+		GetWorld()->SpawnActor<AAHEnemyCharacter>(
+			Point->EnemyClass,
+			Point->GetSpawnLocation(),
+			FRotator::ZeroRotator
+		);
+
+		AliveEnemies++;
 	}
 
-	if (SpawnPoints.Num() == 0) return;
+	if (GS)
+	{
+		GS->SetRemainingMonsters(AliveEnemies);
+	}
 
-	int Index = FMath::RandRange(0, SpawnPoints.Num() - 1);
-	FVector SpawnLoc = SpawnPoints[Index]->GetSpawnLocation();
+}
 
-	GetWorld()->SpawnActor<AAHEnemyCharacter>(Wave.EnemyClass, SpawnLoc, FRotator::ZeroRotator);
-
-	SpawnedCount++;
-	AliveEnemies++;
+void AAHWaveManager::NextLevel()
+{
+	GS->CurrentStage++; // GameInstance로 옮길거임
+	GS->CurrentWave = 1;
+	FString LevelName = FString::Printf(TEXT("Stage%d"), GS->CurrentStage);
+	UGameplayStatics::OpenLevel(this, FName(*LevelName));
+	//UGameplayStatics::OpenLevel(this, StageLevels[GS->CurrentStage]);
 }
 
 void AAHWaveManager::OnEnemyKilled()
@@ -74,6 +110,13 @@ void AAHWaveManager::OnEnemyKilled()
 	if (AliveEnemies <= 0)
 	{
 		CurrentWaveIndex++;
+
+		if (CurrentWaveIndex >= MaxWave)
+		{
+			NextLevel();
+			return;
+		}
+
 		StartWave();
 	}
 }

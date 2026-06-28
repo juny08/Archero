@@ -5,7 +5,8 @@
 #include "AHPlayerCharacter.h"
 #include "AHEnemyCharacter.h"
 #include "AHProjectile.h"
-#include "AHPlayerState.h"
+//#include "AHPlayerState.h"
+#include "AHGameInstance.h"
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -268,8 +269,8 @@ void AAHPlayerCharacter::AddSkill(UAHSkillData* NewSkill)
 
 void AAHPlayerCharacter::GainXp(float Amount)
 {
-    if (AAHPlayerState* PS = GetPlayerState<AAHPlayerState>())
+    if (UAHGameInstance* GI = GetGameInstance<UAHGameInstance>())
     {
-        PS->AddXp(Amount);
+        GI->AddXp(Amount);
     }
 }

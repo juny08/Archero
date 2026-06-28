@@ -2,7 +2,8 @@
 
 
 #include "AHPlayerController.h"
-#include "AHPlayerState.h"
+//#include "AHPlayerState.h"
+#include "AHGameInstance.h"
 #include "AHJoyStickWidget.h"
 #include "AHLevelUpWidget.h"
 #include "AHPlayWidget.h"
@@ -19,9 +20,14 @@ void AAHPlayerController::BeginPlay()
     Super::BeginPlay();
     InitializeUI();
 
-	if (AAHPlayerState* PS = GetPlayerState<AAHPlayerState>())
+	//if (AAHPlayerState* PS = GetPlayerState<AAHPlayerState>())
+	//{
+	//	PS->OnLevelUp.AddDynamic(this, &AAHPlayerController::OnLevelUp);
+	//}
+
+	if (UAHGameInstance* GI = GetGameInstance<UAHGameInstance>())
 	{
-		PS->OnLevelUp.AddDynamic(this, &AAHPlayerController::OnLevelUp);
+		GI->OnLevelUp.AddDynamic(this, &AAHPlayerController::OnLevelUp);
 	}
 }
 

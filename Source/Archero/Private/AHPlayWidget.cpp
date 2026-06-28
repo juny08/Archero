@@ -3,23 +3,27 @@
 
 #include "AHPlayWidget.h"
 #include "AHPlayerState.h"
+#include "AHGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 void UAHPlayWidget::TryBindPlayerState()
 {
-	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (!PC) return;
+	//APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	//if (!PC) return;
+	//
+	//AAHPlayerState* PS = PC->GetPlayerState<AAHPlayerState>();
 
-	AAHPlayerState* PS = PC->GetPlayerState<AAHPlayerState>();
-	if (PS)
+	UAHGameInstance* GI = GetGameInstance<UAHGameInstance>();
+
+	if (GI)
 	{
 		// PlayerState의 델리게이트와 위젯의 함수를 연결!
-		PS->OnLevelUp.AddDynamic(this, &UAHPlayWidget::UpdateLevel);
-		PS->OnXPChanged.AddDynamic(this, &UAHPlayWidget::UpdateXp);
+		GI->OnLevelUp.AddDynamic(this, &UAHPlayWidget::UpdateLevel);
+		GI->OnXPChanged.AddDynamic(this, &UAHPlayWidget::UpdateXp);
 
 		// 처음 켜졌을 때의 초기값 반영
-		UpdateLevel(PS->GetLevel());
-		UpdateXp(PS->GetXP(), 100.f);
+		UpdateLevel(GI->GetLevel());
+		UpdateXp(GI->GetXP(), 100.f);
 
 		// 연결 성공했으므로 타이머 해제
 		GetWorld()->GetTimerManager().ClearTimer(BindingTimerHandle);

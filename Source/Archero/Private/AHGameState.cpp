@@ -5,7 +5,7 @@
 
 AAHGameState::AAHGameState()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	CurrentStage = 1;
 	CurrentWave = 1;
 	RemainingMonsters = 0;
