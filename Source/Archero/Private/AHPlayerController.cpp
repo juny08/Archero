@@ -133,6 +133,8 @@ void AAHPlayerController::HideLevelUpUI()
 
 void AAHPlayerController::OnLevelUp(int NewLevel)
 {
+	//UAHGameInstance* GI = GetGameInstance<UAHGameInstance>();
+	//GI->LevelUpCount++;
 	ShowLevelUpUI();
 }
 

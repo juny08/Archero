@@ -29,7 +29,7 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* LevelText;
 
-	void TryBindPlayerState();
+	void TryBindGameInstance();
 	FTimerHandle BindingTimerHandle;
 
 public:

@@ -9,6 +9,8 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpDelegate, int, NewLevel);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnXPChangedDelegate, float, CurrentXP, float, MaxXP);
 
+class UAHSkillData;
+
 UCLASS()
 class ARCHERO_API UAHGameInstance : public UGameInstance
 {
@@ -16,6 +18,7 @@ class ARCHERO_API UAHGameInstance : public UGameInstance
 
 public:
 	void AddXp(float Amount);
+	void AddSkill(UAHSkillData* NewSkill);
 
 	// === Getter ===
 	int GetLevel() const { return Level; }
@@ -30,6 +33,16 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnXPChangedDelegate OnXPChanged;
 
+public:
+	//UPROPERTY(EditAnywhere, Category = "Skill")
+	//TArray<UAHSkillData*> InitialSkills;
+	//
+	//UPROPERTY(VisibleAnywhere, Category = "Skill")
+	//TArray<UAHSkillData*> ActiveSkills;
+
+	UPROPERTY(VisibleAnywhere, Category = "Skill")
+	TArray<UAHSkillData*> Skills;
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Stats")
 	int Level = 1;
@@ -42,4 +55,8 @@ protected:
 
 public:
 	int CurrentStage = 1;
+	int ForwardArrowCount = 1;
+	int MultiShotCount = 1;
+	float AttackDamage = 50.f;
+	int LevelUpCount = 0;
 };

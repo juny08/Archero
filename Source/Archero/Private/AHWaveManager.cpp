@@ -1,6 +1,7 @@
 #include "AHWaveManager.h"
 #include "AHGameState.h"
 #include "AHEnemySpawnPoint.h"
+#include "AHGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 AAHWaveManager::AAHWaveManager()

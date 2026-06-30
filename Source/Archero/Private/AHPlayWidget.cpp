@@ -2,11 +2,11 @@
 
 
 #include "AHPlayWidget.h"
-#include "AHPlayerState.h"
+//#include "AHPlayerState.h"
 #include "AHGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
-void UAHPlayWidget::TryBindPlayerState()
+void UAHPlayWidget::TryBindGameInstance()
 {
 	//APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	//if (!PC) return;
@@ -37,7 +37,7 @@ void UAHPlayWidget::NativeConstruct()
 	GetWorld()->GetTimerManager().SetTimer(
 		BindingTimerHandle,
 		this,
-		&UAHPlayWidget::TryBindPlayerState,
+		&UAHPlayWidget::TryBindGameInstance,
 		0.1f,
 		true
 	);
@@ -49,10 +49,10 @@ void UAHPlayWidget::NativeTick(const FGeometry & MyGeometry, float DeltaTime)
 {
 	Super::NativeTick(MyGeometry, DeltaTime);
 
-	if (IsValid(XpBar) /*&& IsValid(currentState)*/)
-	{
-		//XpBar->SetPercent(currentCharacter->);
-	}
+	//if (IsValid(XpBar) /*&& IsValid(currentState)*/)
+	//{
+	//	//XpBar->SetPercent(currentCharacter->);
+	//}
 }
 
 void UAHPlayWidget::UpdateLevel(int NewLevel)

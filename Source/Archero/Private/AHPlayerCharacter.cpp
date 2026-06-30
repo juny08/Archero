@@ -27,8 +27,13 @@
 
 AAHPlayerCharacter::AAHPlayerCharacter()
 {
+    GI = GetGameInstance<UAHGameInstance>();
+
     HealthMax = 100.f;
     HealthCurrent = HealthMax;
+    //GI->AttackDamage = Damage;
+    //ForwardArrowCount = GI->ForwardArrowCount;
+    //MultiShotCount = GI->MultiShotCount;
 
     // 스프링 암
     CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -38,9 +43,7 @@ AAHPlayerCharacter::AAHPlayerCharacter()
     CameraBoom->bInheritPitch = false;
     CameraBoom->bInheritYaw = false;
     CameraBoom->bInheritRoll = false;
-
     CameraBoom->bDoCollisionTest = false; // 장애물에 의한 카메라 줌 방지
-
 
     // 카메라
     FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -60,13 +63,13 @@ void AAHPlayerCharacter::BeginPlay()
         }
     }
 
-    for (UAHSkillData* Skill : InitialSkills)
-    {
-        if (Skill)
-        {
-            AddSkill(Skill);
-        }
-    }
+    //for (UAHSkillData* Skill : GI->Skills)
+    //{
+    //    if (Skill)
+    //    {
+    //        GI->AddSkill(Skill);
+    //    }
+    //}
 }
 
 #pragma endregion
@@ -113,32 +116,32 @@ void AAHPlayerCharacter::Tick(float DeltaTime)
 
 #pragma region 다른 클래스로 이동 예정
 
-void AAHPlayerCharacter::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)
-{
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-    if (UEnhancedInputComponent* MoveComp = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
-    {
-        MoveComp->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAHPlayerCharacter::Move);
-    }
-}
-
-void AAHPlayerCharacter::Move(const FInputActionValue& Value)
-{
-    FVector2D MovementVector = Value.Get<FVector2D>();
-
-    if (Controller != nullptr)
-    {
-        const FRotator Rotation = Controller->GetControlRotation();
-        const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-        const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-        const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-        AddMovementInput(ForwardDirection, MovementVector.Y);
-        AddMovementInput(RightDirection, MovementVector.X);
-    }
-}
+//void AAHPlayerCharacter::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)
+//{
+//    Super::SetupPlayerInputComponent(PlayerInputComponent);
+//
+//    if (UEnhancedInputComponent* MoveComp = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+//    {
+//        MoveComp->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAHPlayerCharacter::Move);
+//    }
+//}
+//
+//void AAHPlayerCharacter::Move(const FInputActionValue& Value)
+//{
+//    FVector2D MovementVector = Value.Get<FVector2D>();
+//
+//    if (Controller != nullptr)
+//    {
+//        const FRotator Rotation = Controller->GetControlRotation();
+//        const FRotator YawRotation(0, Rotation.Yaw, 0);
+//
+//        const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+//        const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+//
+//        AddMovementInput(ForwardDirection, MovementVector.Y);
+//        AddMovementInput(RightDirection, MovementVector.X);
+//    }
+//}
 
 #pragma endregion
 
@@ -169,9 +172,9 @@ void AAHPlayerCharacter::Fire()
     // --- 전방 화살 로직 ---
     float ArrowInterval = 30.f; // 화살 사이의 가로 간격 (유닛 단위)
 
-    for (int i = 0; i < ForwardArrowCount; i++)
+    for (int i = 0; i < GI->ForwardArrowCount; i++)
     {
-        float CenterOffset = (ForwardArrowCount - 1) * 0.5f;
+        float CenterOffset = (GI->ForwardArrowCount - 1) * 0.5f;
         float SideOffset = (i - CenterOffset) * ArrowInterval;
 
         // 현재 캐릭터가 바라보는 정면을 기준으로 스폰 위치와 방향 계산
@@ -186,13 +189,17 @@ void AAHPlayerCharacter::Fire()
         SpawnParams.Instigator = GetInstigator();
         SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-        GetWorld()->SpawnActor<AAHProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
+        AAHProjectile* Projectile = GetWorld()->SpawnActor<AAHProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
+        if (Projectile)
+        {
+            Projectile->Damage = GI->AttackDamage;
+        }
     }
 
     // --- 멀티샷 예약 ---
     CurrentMultiShotCount++;
 
-    if (CurrentMultiShotCount < MultiShotCount)
+    if (CurrentMultiShotCount < GI->MultiShotCount)
     {
         GetWorldTimerManager().SetTimer(
             MultiShotTimerHandle,
@@ -209,7 +216,7 @@ AAHEnemyCharacter* AAHPlayerCharacter::FindNearestEnemy()
     TArray<FOverlapResult> OverlapResults;
     FCollisionShape Sphere = FCollisionShape::MakeSphere(1500.f); // 사거리 1500 유닛
     
-    // 내 주변의 Pawn 채널을 가진 물체만 감지 (성능 훨씬 좋음)
+    // 내 주변의 Pawn 채널을 가진 물체만 감지
     bool bHasFound = GetWorld()->OverlapMultiByChannel(
         OverlapResults, 
         GetActorLocation(), 
@@ -252,25 +259,22 @@ AAHEnemyCharacter* AAHPlayerCharacter::FindNearestEnemy()
 
 void AAHPlayerCharacter::AddSkill(UAHSkillData* NewSkill)
 {
-    if (!NewSkill) return;
-
-    ActiveSkills.Add(NewSkill);
-
-    switch (NewSkill->effectType)
-    {
-    case ESkillEffectType::AddForwardArrow:
-        ForwardArrowCount += NewSkill->value;
-        break;
-    case ESkillEffectType::AddMultiShot:
-        MultiShotCount += NewSkill->value;
-        break;
-    }
+    //if (!NewSkill) return;
+    //
+    //ActiveSkills.Add(NewSkill);
+    //
+    //switch (NewSkill->effectType)
+    //{
+    //case ESkillEffectType::AddForwardArrow:
+    //    ForwardArrowCount += NewSkill->value;
+    //    break;
+    //case ESkillEffectType::AddMultiShot:
+    //    MultiShotCount += NewSkill->value;
+    //    break;
+    //}
 }
 
 void AAHPlayerCharacter::GainXp(float Amount)
 {
-    if (UAHGameInstance* GI = GetGameInstance<UAHGameInstance>())
-    {
-        GI->AddXp(Amount);
-    }
+    GI->AddXp(Amount);
 }

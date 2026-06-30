@@ -25,8 +25,8 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
     class UCameraComponent* FollowCamera;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	class UInputAction* MoveAction;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	//class UInputAction* MoveAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputMappingContext* DefaultMappingContext;
@@ -41,16 +41,12 @@ protected:
 	float RotationSpeed = 30.f;
 
 	UPROPERTY(EditAnywhere, Category = "Skill")
-	TArray<UAHSkillData*> InitialSkills;
-
-	UPROPERTY(VisibleAnywhere, Category = "Skill")
-	TArray<UAHSkillData*> ActiveSkills;
-
-	UPROPERTY(EditAnywhere, Category = "Skill")
 	float MultiShotDelay = 0.15f;
 
-	int ForwardArrowCount = 1;
-	int MultiShotCount = 1;
+	UPROPERTY(EditAnywhere, Category = "Status")
+	float Damage = 50.f;
+	//int ForwardArrowCount;
+	//int MultiShotCount;
 
 	int CurrentMultiShotCount = 0;
 
@@ -59,20 +55,21 @@ protected:
 	FTimerHandle AttackTimerHandle;
 	FTimerHandle MultiShotTimerHandle;
 
-
 	FRotator TargetLookRotation;
 	bool bIsRotatingToTarget = false;
 
 	bool bReadyToFire = false;
+
+	class UAHGameInstance* GI;
 
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
 	
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	void Move(const FInputActionValue& Value);
+	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	//
+	//void Move(const FInputActionValue& Value);
 	
 	void Targeting();
 
