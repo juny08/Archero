@@ -10,7 +10,7 @@
 UENUM(BlueprintType)
 enum class ESkillEffectType : uint8
 {
-    StatBoost,
+    DamageBoost,
     AddForwardArrow,
     AddMultiShot
 };
@@ -32,4 +32,7 @@ public:
 
     UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Skill")
     UTexture2D* skillIcon;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TSubclassOf<class UAHSkillLogic> SkillLogicClass;
 };

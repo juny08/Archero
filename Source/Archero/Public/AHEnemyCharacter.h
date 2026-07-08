@@ -16,7 +16,7 @@ class ARCHERO_API AAHEnemyCharacter : public AAHDefaultCharacter
 public:
 	AAHEnemyCharacter();
 
-	void ExecuteAttack(AActor* AttackTarget);
+	virtual void ExecuteAttack(AActor* AttackTarget);
 
 	float GetAttackRange() const { return attackRange; }
 

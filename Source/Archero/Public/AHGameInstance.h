@@ -57,6 +57,7 @@ public:
 	int CurrentStage = 1;
 	int ForwardArrowCount = 1;
 	int MultiShotCount = 1;
-	float AttackDamage = 50.f;
+	float AttackDamage = 10.f;
+	float BonusDamage = 0.f;
 	int LevelUpCount = 0;
 };

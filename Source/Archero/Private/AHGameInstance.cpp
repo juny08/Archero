@@ -3,6 +3,7 @@
 
 #include "AHGameInstance.h"
 #include "AHSkillData.h"
+#include "AHSkillLogic.h"
 
 void UAHGameInstance::AddXp(float Amount)
 {
@@ -28,26 +29,34 @@ void UAHGameInstance::AddXp(float Amount)
 		OnXPChanged.Broadcast(CurrentXp, MaxXp);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Level: %d, XP: %f / %f"), Level, CurrentXp, MaxXp);
+	//UE_LOG(LogTemp, Warning, TEXT("Level: %d, XP: %f / %f"), Level, CurrentXp, MaxXp);
 
 }
 
 void UAHGameInstance::AddSkill(UAHSkillData* NewSkill)
 {
-	if (!NewSkill) return;
+	if (!NewSkill || !NewSkill->SkillLogicClass) return;
 
 	Skills.Add(NewSkill);
 
-	switch (NewSkill->effectType)
+	UAHSkillLogic* Logic = NewObject<UAHSkillLogic>(this, NewSkill->SkillLogicClass);
+	
+	if (Logic)
 	{
-	case ESkillEffectType::AddForwardArrow:
-		ForwardArrowCount += NewSkill->value;
-		break;
-	case ESkillEffectType::AddMultiShot:
-		MultiShotCount += NewSkill->value;
-		break;
+		Logic->Activate(this, NewSkill->value);
+	}
+
+
+	//switch (NewSkill->effectType)
+	//{
+	//case ESkillEffectType::AddForwardArrow:
+	//	ForwardArrowCount += NewSkill->value;
+	//	break;
+	//case ESkillEffectType::AddMultiShot:
+	//	MultiShotCount += NewSkill->value;
+	//	break;
 	//case ESkillEffectType::StatBoost:
 	//	 += NewSkill->value;
 	//	break;
-	}
+	//}
 }

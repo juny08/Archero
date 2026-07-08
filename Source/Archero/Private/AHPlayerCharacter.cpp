@@ -192,7 +192,7 @@ void AAHPlayerCharacter::Fire()
         AAHProjectile* Projectile = GetWorld()->SpawnActor<AAHProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
         if (Projectile)
         {
-            Projectile->Damage = GI->AttackDamage;
+            Projectile->Damage = GI->AttackDamage + GI->BonusDamage;
         }
     }
 
