@@ -144,14 +144,14 @@ void AAHBossCharacter::StartFanCharge()
 
 		FVector Dir = Rot.Vector();
 
-		DrawDebugLine(GetWorld(),
-			GetActorLocation(),
-			GetActorLocation() + Dir * 800.f,
-			FColor::Red,
-			false,
-			ChargeTime,
-			0,
-			4.f);
+		//DrawDebugLine(GetWorld(),
+		//	GetActorLocation(),
+		//	GetActorLocation() + Dir * 800.f,
+		//	FColor::Red,
+		//	false,
+		//	ChargeTime,
+		//	0,
+		//	4.f);
 	}
 
 	GetWorldTimerManager().SetTimer(ChargeTimer, this, &AAHBossCharacter::ExecuteFanAttack, ChargeTime, false);
@@ -166,15 +166,26 @@ void AAHBossCharacter::ExecuteFanAttack()
 		FRotator Rot = CachedDirection.Rotation();
 		Rot.Yaw += i * 10.f;
 
+		FActorSpawnParameters Params;
+		Params.Owner = this;
+		Params.Instigator = GetInstigator();
+
+
 		AAHProjectile* Proj = GetWorld()->SpawnActor<AAHProjectile>(
 			EnemyProjectileClass,
 			GetActorLocation(),
-			Rot
+			Rot,
+			Params
 		);
 
 		if (Proj)
 		{
 			Proj->Damage = attackDamage;
+
+			//if (Proj->SphereComp)
+			//{
+			//	Proj->SphereComp->IgnoreActorWhenMoving(this, true);
+			//}
 		}
 	}
 
@@ -192,6 +203,7 @@ void AAHBossCharacter::StartLaserCharge()
 	FVector Start = GetActorLocation();
 	FVector End = Start + CachedDirection * 1200.f;
 
+	// 최종은 나이아가라 이펙트로
 	DrawDebugLine(GetWorld(),
 		Start,
 		End,

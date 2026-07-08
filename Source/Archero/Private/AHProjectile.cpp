@@ -26,8 +26,8 @@ AAHProjectile::AAHProjectile()
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->UpdatedComponent = SphereComp;
-	ProjectileMovement->InitialSpeed = 2000.f; // 초기 속도
-	ProjectileMovement->MaxSpeed = 2000.f;     // 최대 속도
+	ProjectileMovement->InitialSpeed = InitialSpeed; // 초기 속도
+	ProjectileMovement->MaxSpeed = MaxSpeed;     // 최대 속도
 	ProjectileMovement->bRotationFollowsVelocity = true; // 날아가는 방향으로 회전
 	ProjectileMovement->ProjectileGravityScale = 0.f;    // 중력 영향 0
 

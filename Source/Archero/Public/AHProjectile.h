@@ -19,6 +19,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Status")
 	float Damage = 20.f;
 
+	UPROPERTY(EditAnywhere, Category = "Status")
+	float InitialSpeed = 2000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Status")
+	float MaxSpeed = 2000.f;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
