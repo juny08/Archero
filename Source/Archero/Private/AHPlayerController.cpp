@@ -7,6 +7,7 @@
 #include "AHJoyStickWidget.h"
 #include "AHLevelUpWidget.h"
 #include "AHPlayWidget.h"
+#include "AHGameoverWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -106,9 +107,9 @@ void AAHPlayerController::ShowLevelUpUI()
 		LevelUpWidgetInstance->AddToViewport(10);
 	}
 
-	FInputModeUIOnly Mode;
-	SetInputMode(Mode);
-	bShowMouseCursor = true;
+	//FInputModeUIOnly Mode;
+	//SetInputMode(Mode);
+	//bShowMouseCursor = true;
 }
 
 void AAHPlayerController::HideLevelUpUI()
@@ -119,17 +120,36 @@ void AAHPlayerController::HideLevelUpUI()
 		LevelUpWidgetInstance = nullptr;
 	}
 
-	FInputModeGameAndUI Mode;
-	SetInputMode(Mode);
-	//bShowMouseCursor = false;
-#if PLATFORM_ANDROID || PLATFORM_IOS
-	bShowMouseCursor = false;
-#else
-	bShowMouseCursor = true;
-#endif
+//	FInputModeGameAndUI Mode;
+//	SetInputMode(Mode);
+//	//bShowMouseCursor = false;
+//#if PLATFORM_ANDROID || PLATFORM_IOS
+//	bShowMouseCursor = false;
+//#else
+//	bShowMouseCursor = true;
+//#endif
 
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
+
+void AAHPlayerController::ShowGameoverUI()
+{
+	if (!GameoverWidgetClass) return;
+
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+
+	GameoverWidgetInstance = CreateWidget<UAHGameoverWidget>(this, GameoverWidgetClass);
+	if (GameoverWidgetInstance)
+	{
+		GameoverWidgetInstance->AddToViewport(10);
+	}
+
+	//FInputModeUIOnly Mode;
+	//SetInputMode(Mode);
+	//bShowMouseCursor = true;
+}
+
+#pragma endregion
 
 void AAHPlayerController::OnLevelUp(int NewLevel)
 {
@@ -137,5 +157,3 @@ void AAHPlayerController::OnLevelUp(int NewLevel)
 	//GI->LevelUpCount++;
 	ShowLevelUpUI();
 }
-
-#pragma endregion

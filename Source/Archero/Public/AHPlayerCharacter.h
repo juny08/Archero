@@ -79,6 +79,17 @@ protected:
 
 	//void AutoTargeting();
 
+	virtual float TakeDamage
+	(
+		float DamageAmount,
+		struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator,
+		AActor* DamageCauser
+	) override;
+
+	virtual void OnDeath() override;
+
+	virtual void UpdateHpBar() override;
 
 public:
 	void GainXp(float Amount);

@@ -20,10 +20,16 @@ public:
 	void AddXp(float Amount);
 	void AddSkill(UAHSkillData* NewSkill);
 
+	void StatsReset();
+
 	// === Getter ===
 	int GetLevel() const { return Level; }
 	float GetXP() const { return CurrentXp; }
 	float GetMaxXP() const { return MaxXp; }
+	float GetHP() const { return CurrentHp; }
+	float GetMaxHP() const { return MaxHp; }
+
+	void MinusHP(float Change) { CurrentHp -= Change; }
 
 public:
 	// === 이벤트 ===
@@ -47,11 +53,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Stats")
 	int Level = 1;
 
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	float MaxXp = 100.f;
+
 	UPROPERTY(VisibleAnywhere, Category = "Stats")
 	float CurrentXp = 0.f;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
-	float MaxXp = 100.f;
+	float MaxHp = 100.f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Stats")
+	float CurrentHp = MaxHp;
 
 public:
 	int CurrentStage = 1;

@@ -7,6 +7,8 @@
 #include "AHProjectile.h"
 //#include "AHPlayerState.h"
 #include "AHGameInstance.h"
+#include "AHHPBarWidget.h"
+#include "AHPlayerController.h"
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -21,6 +23,8 @@
 #include "Engine/OverlapResult.h"
 #include "Engine/World.h"
 
+#include "Components/WidgetComponent.h"
+
 #pragma endregion
 
 #pragma region Init
@@ -29,8 +33,8 @@ AAHPlayerCharacter::AAHPlayerCharacter()
 {
     GI = GetGameInstance<UAHGameInstance>();
 
-    HealthMax = 100.f;
-    HealthCurrent = HealthMax;
+    //HealthMax = GI->GetMaxHP();
+    //HealthCurrent = GI->GetHP();
     //GI->AttackDamage = Damage;
     //ForwardArrowCount = GI->ForwardArrowCount;
     //MultiShotCount = GI->MultiShotCount;
@@ -54,6 +58,8 @@ AAHPlayerCharacter::AAHPlayerCharacter()
 void AAHPlayerCharacter::BeginPlay()
 {
     Super::BeginPlay();
+
+    UpdateHpBar();
 
     if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
     {
@@ -272,6 +278,45 @@ void AAHPlayerCharacter::AddSkill(UAHSkillData* NewSkill)
     //    MultiShotCount += NewSkill->value;
     //    break;
     //}
+}
+
+float AAHPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+    if (IsValid(EventInstigator) && EventInstigator == GetController()) { return 0; }
+
+    //HealthCurrent -= DamageAmount;
+    GI->MinusHP(DamageAmount);
+    UpdateHpBar();
+
+    if (GI->GetHP() <= 0)
+    {
+        OnDeath();
+        GI->StatsReset();
+    }
+    return DamageAmount;
+}
+
+void AAHPlayerCharacter::OnDeath()
+{
+    if (DeathMontage)
+    {
+        PlayAnimMontage(DeathMontage);
+    }
+    AAHPlayerController* PC = Cast<AAHPlayerController>(GetController());
+    PC->ShowGameoverUI();
+}
+
+void AAHPlayerCharacter::UpdateHpBar()
+{
+    if (HpBar)
+    {
+        UAHHpBarWidget* HpWidget = Cast<UAHHpBarWidget>(HpBar->GetUserWidgetObject());
+        if (HpWidget)
+        {
+            float Percent = GI->GetHP() / GI->GetMaxHP();
+            HpWidget->SetHpPercent(Percent);
+        }
+    }
 }
 
 void AAHPlayerCharacter::GainXp(float Amount)

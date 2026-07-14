@@ -60,3 +60,12 @@ void UAHGameInstance::AddSkill(UAHSkillData* NewSkill)
 	//	break;
 	//}
 }
+
+void UAHGameInstance::StatsReset()
+{
+	Level = 1;
+	MaxXp = 100.f;
+	CurrentXp = 0.f;
+	MaxHp = 100.f;
+	CurrentHp = MaxHp;
+}

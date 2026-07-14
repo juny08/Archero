@@ -35,7 +35,7 @@ protected:
 
 	virtual void OnDeath();
 
-	void UpdateHpBar();
+	virtual void UpdateHpBar();
 
 public:	
 	virtual float TakeDamage
