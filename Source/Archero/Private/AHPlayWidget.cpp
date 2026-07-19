@@ -4,6 +4,8 @@
 #include "AHPlayWidget.h"
 //#include "AHPlayerState.h"
 #include "AHGameInstance.h"
+#include "AHPlayerController.h"
+#include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 
 void UAHPlayWidget::TryBindGameInstance()
@@ -17,7 +19,6 @@ void UAHPlayWidget::TryBindGameInstance()
 
 	if (GI)
 	{
-		// PlayerState의 델리게이트와 위젯의 함수를 연결!
 		GI->OnLevelUp.AddDynamic(this, &UAHPlayWidget::UpdateLevel);
 		GI->OnXPChanged.AddDynamic(this, &UAHPlayWidget::UpdateXp);
 
@@ -27,6 +28,11 @@ void UAHPlayWidget::TryBindGameInstance()
 
 		// 연결 성공했으므로 타이머 해제
 		GetWorld()->GetTimerManager().ClearTimer(BindingTimerHandle);
+	}
+
+	if (PauseButton)
+	{
+		PauseButton->OnClicked.AddDynamic(this, &UAHPlayWidget::OnPauseClicked);
 	}
 }
 
@@ -70,4 +76,12 @@ void UAHPlayWidget::UpdateXp(float CurrentXp, float MaxXp)
 		float Percent = CurrentXp / MaxXp;
 		XpBar->SetPercent(Percent);
 	}
+}
+
+void UAHPlayWidget::OnPauseClicked()
+{
+	AAHPlayerController* PC = Cast<AAHPlayerController>(GetOwningPlayer());
+	if (!PC) return;
+
+	PC->ShowPauseUI();
 }

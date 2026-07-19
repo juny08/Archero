@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "AHGameoverWidget.generated.h"
+#include "AHPauseWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ARCHERO_API UAHGameoverWidget : public UUserWidget
+class ARCHERO_API UAHPauseWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 protected:
 	virtual void NativeConstruct() override;
 
@@ -21,12 +21,11 @@ protected:
 	class UButton* MenuButton;
 
 	UPROPERTY(meta = (BindWidget))
-	class UButton* QuitButton;
+	class UButton* ResumeButton;
 
-	
 	UFUNCTION()
 	void OnMenuClicked();
 
 	UFUNCTION()
-	void OnQuitClicked();
+	void OnResumeClicked();
 };

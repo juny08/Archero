@@ -32,6 +32,9 @@ protected:
 	void TryBindGameInstance();
 	FTimerHandle BindingTimerHandle;
 
+	UPROPERTY(meta = (BindWidget))
+	class UButton* PauseButton;
+
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float DeltaTime) override;
@@ -41,4 +44,8 @@ public:
 
 	UFUNCTION()
 	void UpdateXp(float CurrentXp, float MaxXp);
+
+	// 이벤트 함수
+	UFUNCTION()
+	void OnPauseClicked();
 };

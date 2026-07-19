@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<class UAHGameoverWidget> GameoverWidgetClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<class UAHPauseWidget> PauseWidgetClass;
+
 	// UI Instance
 	UPROPERTY()
 	class UAHPlayWidget* PlayWidgetInstance = nullptr;
@@ -48,6 +51,9 @@ protected:
 	UPROPERTY()
 	class UAHGameoverWidget* GameoverWidgetInstance = nullptr;
 
+	UPROPERTY()
+	class UAHPauseWidget* PauseWidgetInstance = nullptr;
+
 private:
 	void InitializeUI();
 
@@ -59,6 +65,9 @@ public:
 	void HideLevelUpUI();
 
 	void ShowGameoverUI();
+
+	void ShowPauseUI();
+	void HidePauseUI();
 
 	UFUNCTION()
 	void OnLevelUp(int NewLevel);

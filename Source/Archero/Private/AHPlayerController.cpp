@@ -8,6 +8,7 @@
 #include "AHLevelUpWidget.h"
 #include "AHPlayWidget.h"
 #include "AHGameoverWidget.h"
+#include "AHPauseWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -147,6 +148,31 @@ void AAHPlayerController::ShowGameoverUI()
 	//FInputModeUIOnly Mode;
 	//SetInputMode(Mode);
 	//bShowMouseCursor = true;
+}
+
+void AAHPlayerController::ShowPauseUI()
+{
+	if (!PauseWidgetClass) return;
+
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+
+	PauseWidgetInstance = CreateWidget<UAHPauseWidget>(this, PauseWidgetClass);
+	if (PauseWidgetInstance)
+	{
+		PauseWidgetInstance->AddToViewport(10);
+	}
+}
+
+void AAHPlayerController::HidePauseUI()
+{
+	if (PauseWidgetInstance)
+	{
+		PauseWidgetInstance->RemoveFromParent();
+
+		PauseWidgetInstance = nullptr;
+	}
+
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 
 #pragma endregion
