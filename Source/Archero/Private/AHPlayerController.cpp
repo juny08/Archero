@@ -175,6 +175,18 @@ void AAHPlayerController::HidePauseUI()
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 
+void AAHPlayerController::HideGameoverUI()
+{
+	if (GameoverWidgetInstance)
+	{
+		GameoverWidgetInstance->RemoveFromParent();
+
+		GameoverWidgetInstance = nullptr;
+	}
+
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+}
+
 #pragma endregion
 
 void AAHPlayerController::OnLevelUp(int NewLevel)

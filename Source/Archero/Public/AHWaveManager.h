@@ -17,11 +17,15 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Wave")
 	TArray<AAHEnemySpawnPoint*> SpawnPoints;
 
+	UPROPERTY(EditAnywhere, Category = "Wave")
+	class AAHStageGate* StageGate;
+
 	//UPROPERTY(EditAnywhere)
 	//TArray<FName> StageLevels;
 
 	UPROPERTY()
 	class AAHGameState* GS;
+
 
 	int MaxWave = 0;
 	int CurrentWaveIndex;

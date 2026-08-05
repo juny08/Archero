@@ -33,6 +33,13 @@ AAHPlayerCharacter::AAHPlayerCharacter()
 {
     GI = GetGameInstance<UAHGameInstance>();
 
+    //GI->StatsReset();
+
+    //GI->SetMaxHP(HealthMax);
+    //GI->SetHP(HealthMax);
+    //GI->SetAttackDamage(Damage);
+    //GI->SetAttackDelay(AttackDelay);
+    
     //HealthMax = GI->GetMaxHP();
     //HealthCurrent = GI->GetHP();
     //GI->AttackDamage = Damage;
@@ -111,7 +118,7 @@ void AAHPlayerCharacter::Tick(float DeltaTime)
     {
         if (!GetWorldTimerManager().IsTimerActive(AttackTimerHandle))
         {
-            GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AAHPlayerCharacter::Targeting, AttackDelay, true, 0.1f);
+            GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AAHPlayerCharacter::Targeting, GI->AttackDelay, true, 0.1f);
         }
     }
     else
@@ -285,7 +292,7 @@ float AAHPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
     if (IsValid(EventInstigator) && EventInstigator == GetController()) { return 0; }
 
     //HealthCurrent -= DamageAmount;
-    GI->MinusHP(DamageAmount);
+    GI->SetHP(GI->GetHP() - DamageAmount);
     UpdateHpBar();
 
     if (GI->GetHP() <= 0)

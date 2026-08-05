@@ -11,11 +11,13 @@ class ARCHERO_API AAHDefaultCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-protected:
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status", meta = (AllowAbstract = "true"))
 	float HealthMax;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status", meta = (AllowAbstract = "true"))
 	float HealthCurrent;
+
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status", meta = (AllowAbstract = "true"))
 	TObjectPtr<UAnimMontage> AttackMontage;
 

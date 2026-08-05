@@ -69,6 +69,8 @@ public:
 	void ShowPauseUI();
 	void HidePauseUI();
 
+	void HideGameoverUI();
+
 	UFUNCTION()
 	void OnLevelUp(int NewLevel);
 };

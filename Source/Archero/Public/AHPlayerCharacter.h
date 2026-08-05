@@ -34,8 +34,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<class AAHProjectile> ProjectileClass;
 
+public:
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	float AttackDelay = 0.5f;
+	float AttackDelay = 1.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float RotationSpeed = 30.f;
@@ -48,6 +49,8 @@ protected:
 	//int ForwardArrowCount;
 	//int MultiShotCount;
 
+
+protected:
 	int CurrentMultiShotCount = 0;
 
 	bool bIsMove;
@@ -89,9 +92,8 @@ protected:
 
 	virtual void OnDeath() override;
 
-	virtual void UpdateHpBar() override;
-
 public:
+	virtual void UpdateHpBar() override;
 	void GainXp(float Amount);
 	void AddSkill(UAHSkillData* NewSkill);
 };

@@ -11,6 +11,7 @@ UENUM(BlueprintType)
 enum class ESkillEffectType : uint8
 {
     DamageBoost,
+    AttackSpeed,
     AddForwardArrow,
     AddMultiShot
 };

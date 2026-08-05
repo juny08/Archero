@@ -2,6 +2,8 @@
 
 
 #include "AHGameoverWidget.h"
+#include "AHGameInstance.h"
+#include "AHPlayerController.h"
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -15,9 +17,14 @@ void UAHGameoverWidget::NativeConstruct()
 		MenuButton->OnClicked.AddDynamic(this, &UAHGameoverWidget::OnMenuClicked);
 	}
 
-	if (QuitButton)
+	if (ReviveButton)
 	{
-		QuitButton->OnClicked.AddDynamic(this, &UAHGameoverWidget::OnQuitClicked);
+		ReviveButton->OnClicked.AddDynamic(this, &UAHGameoverWidget::OnReviveClicked);
+	}
+
+	if (ReStartButton)
+	{
+		ReStartButton->OnClicked.AddDynamic(this, &UAHGameoverWidget::OnReStartClicked);
 	}
 }
 
@@ -26,8 +33,19 @@ void UAHGameoverWidget::OnMenuClicked()
 	UGameplayStatics::OpenLevel(this, FName("Menu"));
 }
 
-void UAHGameoverWidget::OnQuitClicked()
+void UAHGameoverWidget::OnReviveClicked()
 {
-	APlayerController* PC = GetOwningPlayer();
-	UKismetSystemLibrary::QuitGame(this, PC, EQuitPreference::Quit, true);
+	UAHGameInstance* GI = GetGameInstance<UAHGameInstance>();
+	AAHPlayerController* PC = Cast<AAHPlayerController>(GetOwningPlayer());
+	if (!GI || !PC) return;
+
+	if(GI->Revive()) PC->HideGameoverUI();
+}
+
+void UAHGameoverWidget::OnReStartClicked()
+{
+	UAHGameInstance* GI = GetGameInstance<UAHGameInstance>();
+	GI->StatsReset();
+
+	UGameplayStatics::OpenLevel(this, FName("Stage1"));
 }

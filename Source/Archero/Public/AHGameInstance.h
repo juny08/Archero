@@ -17,6 +17,8 @@ class ARCHERO_API UAHGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
+	UAHGameInstance();
+
 	void AddXp(float Amount);
 	void AddSkill(UAHSkillData* NewSkill);
 
@@ -29,8 +31,12 @@ public:
 	float GetHP() const { return CurrentHp; }
 	float GetMaxHP() const { return MaxHp; }
 
-	void MinusHP(float Change) { CurrentHp -= Change; }
+	bool Revive();
 
+	void SetHP(float Value) { CurrentHp = Value; }
+	void SetMaxHP(float Value) { MaxHp = Value; }
+	void SetAttackDamage(float Value) { AttackDamage = Value; }
+	void SetAttackDelay(float Value) { AttackDelay = Value; }
 public:
 	// === 이벤트 ===
 	UPROPERTY(BlueprintAssignable, Category = "Events")
@@ -65,11 +71,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Stats")
 	float CurrentHp = MaxHp;
 
+	UPROPERTY(VisibleAnywhere, Category = "Stats")
+	bool bCanRevive = true;
+
 public:
 	int CurrentStage = 1;
+
 	int ForwardArrowCount = 1;
 	int MultiShotCount = 1;
+
 	float AttackDamage = 10.f;
 	float BonusDamage = 0.f;
+	float AttackDelay = 1.0f;
+
 	int LevelUpCount = 0;
 };

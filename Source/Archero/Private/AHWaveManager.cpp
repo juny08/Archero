@@ -2,6 +2,7 @@
 #include "AHGameState.h"
 #include "AHEnemySpawnPoint.h"
 #include "AHGameInstance.h"
+#include "AHStageGate.h"
 #include "Kismet/GameplayStatics.h"
 
 AAHWaveManager::AAHWaveManager()
@@ -97,9 +98,9 @@ void AAHWaveManager::NextLevel()
 	GI->CurrentStage++;
 	//GS->CurrentStage++; // GameInstance로 옮길거임
 	GS->CurrentWave = 1;
-	FString LevelName = FString::Printf(TEXT("Stage%d"), GI->CurrentStage);
-	UGameplayStatics::OpenLevel(this, FName(*LevelName));
-	UE_LOG(LogTemp, Warning, TEXT("Move to Stage %d"), GI->CurrentStage);
+	
+	StageGate->GateOpen();
+
 	//UGameplayStatics::OpenLevel(this, StageLevels[GS->CurrentStage]);
 }
 

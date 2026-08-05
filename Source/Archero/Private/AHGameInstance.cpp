@@ -4,6 +4,23 @@
 #include "AHGameInstance.h"
 #include "AHSkillData.h"
 #include "AHSkillLogic.h"
+#include "AHPlayerCharacter.h"
+
+UAHGameInstance::UAHGameInstance()
+{
+	//AAHPlayerCharacter* Player = Cast<AAHPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	//
+	//MaxHp = Player->HealthMax;
+	//CurrentHp = Player->HealthCurrent;
+	//AttackDelay = Player->AttackDelay;
+	//AttackDamage = Player->Damage;
+
+	//GI->SetMaxHP(HealthMax);
+	//GI->SetHP(HealthMax);
+	//GI->SetAttackDamage(Damage);
+	//GI->SetAttackDelay(AttackDelay);
+
+}
 
 void UAHGameInstance::AddXp(float Amount)
 {
@@ -63,9 +80,24 @@ void UAHGameInstance::AddSkill(UAHSkillData* NewSkill)
 
 void UAHGameInstance::StatsReset()
 {
+	AAHPlayerCharacter* Player = Cast<AAHPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	Level = 1;
 	MaxXp = 100.f;
 	CurrentXp = 0.f;
-	MaxHp = 100.f;
+	MaxHp = Player->HealthMax;
+	CurrentHp = Player->HealthCurrent;
+	AttackDelay = Player->AttackDelay;
+	AttackDamage = Player->Damage;
+	bCanRevive = true;
+}
+
+bool UAHGameInstance::Revive()
+{
+	if (!bCanRevive) return false;
+	bCanRevive = false;
 	CurrentHp = MaxHp;
+
+	AAHPlayerCharacter* Player = Cast<AAHPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	Player->UpdateHpBar();
+	return true;
 }

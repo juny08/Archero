@@ -21,12 +21,18 @@ protected:
 	class UButton* MenuButton;
 
 	UPROPERTY(meta = (BindWidget))
-	class UButton* QuitButton;
+	class UButton* ReviveButton;
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* ReStartButton;
 
 	
 	UFUNCTION()
 	void OnMenuClicked();
 
 	UFUNCTION()
-	void OnQuitClicked();
+	void OnReviveClicked();
+
+	UFUNCTION()
+	void OnReStartClicked();
 };
