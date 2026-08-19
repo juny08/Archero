@@ -1,18 +1,19 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "AHEnemyCharacter.h"
 #include "AHPlayerCharacter.h"
 #include "AHDefaultAIController.h"
 #include "AHWaveManager.h"
 #include "AHProjectile.h"
+#include "AHHPBarWidget.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/WidgetComponent.h"
 
 AAHEnemyCharacter::AAHEnemyCharacter()
 {
 	HealthMax = 50.f;
 	HealthCurrent = HealthMax;
+	MoveSpeed = 300.f;
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn"));
 
@@ -53,10 +54,21 @@ void AAHEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//if (AAHWaveManager* WM = Cast<AAHWaveManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AAHWaveManager::StaticClass())))
-	//{
-	//	WM->SpawnEnemy();
-	//}
+	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+}
+
+float AAHEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (IsValid(EventInstigator) && EventInstigator == GetController()) { return 0; } // 본인공격 무효
+
+	HealthCurrent -= DamageAmount;
+	UpdateHpBar();
+
+	if (HealthCurrent <= 0)
+	{
+		OnDeath();
+	}
+	return DamageAmount;
 }
 
 void AAHEnemyCharacter::OnDeath()
@@ -76,4 +88,17 @@ void AAHEnemyCharacter::OnDeath()
 	}
 
 	SetLifeSpan(0.1f); //일정시간 후 사라지기
+}
+
+void AAHEnemyCharacter::UpdateHpBar()
+{
+	if (HpBar)
+	{
+		UAHHpBarWidget* HpWidget = Cast<UAHHpBarWidget>(HpBar->GetUserWidgetObject());
+		if (HpWidget)
+		{
+			float Percent = HealthCurrent / HealthMax;
+			HpWidget->SetHpPercent(Percent);
+		}
+	}
 }

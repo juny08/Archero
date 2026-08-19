@@ -3,6 +3,6 @@
 
 #include "AHSkillLogic.h"
 
-void UAHSkillLogic::Activate_Implementation(UAHGameInstance* GI, float Value)
+void UAHSkillLogic::Activate_Implementation(UAHPlayerStatsComponent* PlayerStats, float Value)
 {
 }

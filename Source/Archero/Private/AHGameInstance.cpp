@@ -1,103 +1,27 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "AHGameInstance.h"
-#include "AHSkillData.h"
-#include "AHSkillLogic.h"
-#include "AHPlayerCharacter.h"
 
-UAHGameInstance::UAHGameInstance()
+void UAHGameInstance::SavePlayerRun(const UAHPlayerStatsComponent* PlayerStats)
 {
-	//AAHPlayerCharacter* Player = Cast<AAHPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	//
-	//MaxHp = Player->HealthMax;
-	//CurrentHp = Player->HealthCurrent;
-	//AttackDelay = Player->AttackDelay;
-	//AttackDamage = Player->Damage;
+    if (!PlayerStats)
+    {
+        return;
+    }
 
-	//GI->SetMaxHP(HealthMax);
-	//GI->SetHP(HealthMax);
-	//GI->SetAttackDamage(Damage);
-	//GI->SetAttackDelay(AttackDelay);
-
+    SavedPlayerRun = PlayerStats->CreateRunData();
+    bHasSavedPlayerRun = true;
 }
 
-void UAHGameInstance::AddXp(float Amount)
+void UAHGameInstance::RestorePlayerRun(UAHPlayerStatsComponent* PlayerStats) const
 {
-	CurrentXp += Amount;
-
-	while (CurrentXp >= MaxXp)
-	{
-		CurrentXp -= MaxXp;
-		Level++;
-
-		MaxXp *= 1.2f;
-
-		// 레벨업 이벤트 알림 (캐릭터나 UI에서 들을 수 있음)
-		if (OnLevelUp.IsBound())
-		{
-			OnLevelUp.Broadcast(Level);
-		}
-	}
-
-	// XP 변경 알림 (XP 바 업데이트용)
-	if (OnXPChanged.IsBound())
-	{
-		OnXPChanged.Broadcast(CurrentXp, MaxXp);
-	}
-
-	//UE_LOG(LogTemp, Warning, TEXT("Level: %d, XP: %f / %f"), Level, CurrentXp, MaxXp);
-
+    if (bHasSavedPlayerRun && PlayerStats)
+    {
+        PlayerStats->ApplyRunData(SavedPlayerRun);
+    }
 }
 
-void UAHGameInstance::AddSkill(UAHSkillData* NewSkill)
+void UAHGameInstance::ResetRun()
 {
-	if (!NewSkill || !NewSkill->SkillLogicClass) return;
-
-	Skills.Add(NewSkill);
-
-	UAHSkillLogic* Logic = NewObject<UAHSkillLogic>(this, NewSkill->SkillLogicClass);
-	
-	if (Logic)
-	{
-		Logic->Activate(this, NewSkill->value);
-	}
-
-
-	//switch (NewSkill->effectType)
-	//{
-	//case ESkillEffectType::AddForwardArrow:
-	//	ForwardArrowCount += NewSkill->value;
-	//	break;
-	//case ESkillEffectType::AddMultiShot:
-	//	MultiShotCount += NewSkill->value;
-	//	break;
-	//case ESkillEffectType::StatBoost:
-	//	 += NewSkill->value;
-	//	break;
-	//}
-}
-
-void UAHGameInstance::StatsReset()
-{
-	AAHPlayerCharacter* Player = Cast<AAHPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	Level = 1;
-	MaxXp = 100.f;
-	CurrentXp = 0.f;
-	MaxHp = Player->HealthMax;
-	CurrentHp = Player->HealthCurrent;
-	AttackDelay = Player->AttackDelay;
-	AttackDamage = Player->Damage;
-	bCanRevive = true;
-}
-
-bool UAHGameInstance::Revive()
-{
-	if (!bCanRevive) return false;
-	bCanRevive = false;
-	CurrentHp = MaxHp;
-
-	AAHPlayerCharacter* Player = Cast<AAHPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	Player->UpdateHpBar();
-	return true;
+    CurrentStage = 1;
+    bHasSavedPlayerRun = false;
+    SavedPlayerRun = FAHPlayerRunData();
 }

@@ -18,10 +18,7 @@ private:
 	TArray<AAHEnemySpawnPoint*> SpawnPoints;
 
 	UPROPERTY(EditAnywhere, Category = "Wave")
-	class AAHStageGate* StageGate;
-
-	//UPROPERTY(EditAnywhere)
-	//TArray<FName> StageLevels;
+	class AAHGate* Gate;
 
 	UPROPERTY()
 	class AAHGameState* GS;

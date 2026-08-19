@@ -15,8 +15,11 @@ class ARCHERO_API UAHMultiShotLogic : public UAHSkillLogic
 	GENERATED_BODY()
 	
 public:
-    virtual void Activate_Implementation(UAHGameInstance* GI, float Value) override
+    virtual void Activate_Implementation(UAHPlayerStatsComponent* PlayerStats, float Value) override
     {
-        GI->MultiShotCount += (int)Value;
+        if (PlayerStats)
+        {
+            PlayerStats->AddMultiShot(FMath::RoundToInt(Value));
+        }
     }
 };

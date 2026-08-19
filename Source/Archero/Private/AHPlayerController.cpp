@@ -2,13 +2,14 @@
 
 
 #include "AHPlayerController.h"
-//#include "AHPlayerState.h"
-#include "AHGameInstance.h"
+#include "AHPlayerCharacter.h"
+#include "AHPlayerStatsComponent.h"
 #include "AHJoyStickWidget.h"
 #include "AHLevelUpWidget.h"
 #include "AHPlayWidget.h"
 #include "AHGameoverWidget.h"
 #include "AHPauseWidget.h"
+#include "AHResultWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -22,14 +23,17 @@ void AAHPlayerController::BeginPlay()
     Super::BeginPlay();
     InitializeUI();
 
-	//if (AAHPlayerState* PS = GetPlayerState<AAHPlayerState>())
-	//{
-	//	PS->OnLevelUp.AddDynamic(this, &AAHPlayerController::OnLevelUp);
-	//}
-
-	if (UAHGameInstance* GI = GetGameInstance<UAHGameInstance>())
+	if (AAHPlayerCharacter* PlayerCharacter = GetPawn<AAHPlayerCharacter>())
 	{
-		GI->OnLevelUp.AddDynamic(this, &AAHPlayerController::OnLevelUp);
+		BindPlayerStats(PlayerCharacter->GetPlayerStats());
+	}
+}
+
+void AAHPlayerController::BindPlayerStats(UAHPlayerStatsComponent* PlayerStats)
+{
+	if (PlayerStats)
+	{
+		PlayerStats->OnLevelUp.AddUniqueDynamic(this, &AAHPlayerController::OnLevelUp);
 	}
 }
 
@@ -87,8 +91,6 @@ void AAHPlayerController::InitializeUI()
 
 	FInputModeGameAndUI InputMode;
 	SetInputMode(InputMode);
-	bShowMouseCursor = true;
-	//bShowMouseCursor = false;
 #if PLATFORM_ANDROID || PLATFORM_IOS
 	bShowMouseCursor = false;
 #else
@@ -107,10 +109,6 @@ void AAHPlayerController::ShowLevelUpUI()
 	{
 		LevelUpWidgetInstance->AddToViewport(10);
 	}
-
-	//FInputModeUIOnly Mode;
-	//SetInputMode(Mode);
-	//bShowMouseCursor = true;
 }
 
 void AAHPlayerController::HideLevelUpUI()
@@ -120,16 +118,6 @@ void AAHPlayerController::HideLevelUpUI()
 		LevelUpWidgetInstance->RemoveFromParent();
 		LevelUpWidgetInstance = nullptr;
 	}
-
-//	FInputModeGameAndUI Mode;
-//	SetInputMode(Mode);
-//	//bShowMouseCursor = false;
-//#if PLATFORM_ANDROID || PLATFORM_IOS
-//	bShowMouseCursor = false;
-//#else
-//	bShowMouseCursor = true;
-//#endif
-
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 
@@ -144,10 +132,18 @@ void AAHPlayerController::ShowGameoverUI()
 	{
 		GameoverWidgetInstance->AddToViewport(10);
 	}
+}
 
-	//FInputModeUIOnly Mode;
-	//SetInputMode(Mode);
-	//bShowMouseCursor = true;
+void AAHPlayerController::HideGameoverUI()
+{
+	if (GameoverWidgetInstance)
+	{
+		GameoverWidgetInstance->RemoveFromParent();
+
+		GameoverWidgetInstance = nullptr;
+	}
+
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 
 void AAHPlayerController::ShowPauseUI()
@@ -175,13 +171,26 @@ void AAHPlayerController::HidePauseUI()
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 
-void AAHPlayerController::HideGameoverUI()
+void AAHPlayerController::ShowResultUI()
 {
-	if (GameoverWidgetInstance)
-	{
-		GameoverWidgetInstance->RemoveFromParent();
+	if (!ResultWidgetClass) return;
 
-		GameoverWidgetInstance = nullptr;
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+
+	ResultWidgetInstance = CreateWidget<UAHResultWidget>(this, ResultWidgetClass);
+	if (ResultWidgetInstance)
+	{
+		ResultWidgetInstance->AddToViewport(10);
+	}
+}
+
+void AAHPlayerController::HideResultUI()
+{
+	if (ResultWidgetInstance)
+	{
+		ResultWidgetInstance->RemoveFromParent();
+
+		ResultWidgetInstance = nullptr;
 	}
 
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
@@ -191,7 +200,5 @@ void AAHPlayerController::HideGameoverUI()
 
 void AAHPlayerController::OnLevelUp(int NewLevel)
 {
-	//UAHGameInstance* GI = GetGameInstance<UAHGameInstance>();
-	//GI->LevelUpCount++;
 	ShowLevelUpUI();
 }

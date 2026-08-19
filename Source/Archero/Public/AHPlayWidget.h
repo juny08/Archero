@@ -18,7 +18,6 @@ class ARCHERO_API UAHPlayWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	//class AAHDefaultGameState* currentState = nullptr;
 	UPROPERTY(BlueprintReadOnly, Category = "Player")
 	class AAHPlayerCharacter* currentCharacter = nullptr;
 
@@ -29,7 +28,7 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* LevelText;
 
-	void TryBindGameInstance();
+	void TryBindPlayerStats();
 	FTimerHandle BindingTimerHandle;
 
 	UPROPERTY(meta = (BindWidget))
@@ -37,7 +36,6 @@ protected:
 
 public:
 	virtual void NativeConstruct() override;
-	virtual void NativeTick(const FGeometry& MyGeometry, float DeltaTime) override;
 
 	UFUNCTION()
 	void UpdateLevel(int NewLevel);

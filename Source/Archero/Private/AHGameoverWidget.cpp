@@ -4,6 +4,8 @@
 #include "AHGameoverWidget.h"
 #include "AHGameInstance.h"
 #include "AHPlayerController.h"
+#include "AHPlayerCharacter.h"
+#include "AHPlayerStatsComponent.h"
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -30,22 +32,34 @@ void UAHGameoverWidget::NativeConstruct()
 
 void UAHGameoverWidget::OnMenuClicked()
 {
+	if (UAHGameInstance* GameInstance = GetGameInstance<UAHGameInstance>())
+	{
+		GameInstance->ResetRun();
+	}
+
 	UGameplayStatics::OpenLevel(this, FName("Menu"));
 }
 
 void UAHGameoverWidget::OnReviveClicked()
 {
-	UAHGameInstance* GI = GetGameInstance<UAHGameInstance>();
 	AAHPlayerController* PC = Cast<AAHPlayerController>(GetOwningPlayer());
-	if (!GI || !PC) return;
+	AAHPlayerCharacter* Player = PC ? Cast<AAHPlayerCharacter>(PC->GetPawn()) : nullptr;
+	if (!Player) return;
 
-	if(GI->Revive()) PC->HideGameoverUI();
+	if (Player->GetPlayerStats()->Revive())
+	{
+		Player->UpdateHpBar();
+		PC->HideGameoverUI();
+	}
 }
 
 void UAHGameoverWidget::OnReStartClicked()
 {
 	UAHGameInstance* GI = GetGameInstance<UAHGameInstance>();
-	GI->StatsReset();
+	if (GI)
+	{
+		GI->ResetRun();
+	}
 
 	UGameplayStatics::OpenLevel(this, FName("Stage1"));
 }

@@ -3,8 +3,9 @@
 
 #include "AHLevelUpWidget.h"
 //#include "AHPlayerCharacter.h"
-#include "AHGameInstance.h"
 #include "AHPlayerController.h"
+#include "AHPlayerCharacter.h"
+#include "AHPlayerStatsComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 void UAHLevelUpWidget::OnSkillSelected(UAHSkillData * SelectedSkill)
@@ -18,10 +19,9 @@ void UAHLevelUpWidget::OnSkillSelected(UAHSkillData * SelectedSkill)
     //    Player->AddSkill(SelectedSkill);
     //}
 
-    UAHGameInstance* GI = GetGameInstance<UAHGameInstance>();
-    if (GI)
+    if (AAHPlayerCharacter* Player = Cast<AAHPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)))
     {
-        GI->AddSkill(SelectedSkill);
+        Player->GetPlayerStats()->AddSkill(SelectedSkill);
     }
 
     // 게임 재개

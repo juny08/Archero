@@ -4,14 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "AHGameInstance.h"
+#include "AHPlayerStatsComponent.h"
 #include "AHSkillLogic.generated.h"
 
 /**
  * 
  */
-class AAHPlayerCharacter;
-
 UCLASS(Blueprintable, Abstract)
 class ARCHERO_API UAHSkillLogic : public UObject
 {
@@ -19,5 +17,5 @@ class ARCHERO_API UAHSkillLogic : public UObject
 	
 public:
 	UFUNCTION(BlueprintNativeEvent)
-	void Activate(UAHGameInstance* GI, float Value);
+	void Activate(UAHPlayerStatsComponent* PlayerStats, float Value);
 };

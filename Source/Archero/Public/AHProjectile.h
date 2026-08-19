@@ -12,7 +12,6 @@ class ARCHERO_API AAHProjectile : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	AAHProjectile();
 	
 public:
@@ -26,7 +25,6 @@ public:
 	float MaxSpeed = 2000.f;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
@@ -40,8 +38,4 @@ protected:
 
 	UFUNCTION()
 	void OnProjectileOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 };

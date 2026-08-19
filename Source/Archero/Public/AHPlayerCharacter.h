@@ -1,16 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "AHDefaultCharacter.h"
-#include "AHSkillData.h"
 #include "InputActionValue.h"
 #include "AHPlayerCharacter.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class ARCHERO_API AAHPlayerCharacter : public AAHDefaultCharacter
 {
@@ -25,9 +19,6 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
     class UCameraComponent* FollowCamera;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	//class UInputAction* MoveAction;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputMappingContext* DefaultMappingContext;
 
@@ -36,21 +27,15 @@ protected:
 
 public:
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	float AttackDelay = 1.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Combat")
 	float RotationSpeed = 30.f;
 
 	UPROPERTY(EditAnywhere, Category = "Skill")
 	float MultiShotDelay = 0.15f;
 
-	UPROPERTY(EditAnywhere, Category = "Status")
-	float Damage = 50.f;
-	//int ForwardArrowCount;
-	//int MultiShotCount;
-
-
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	class UAHPlayerStatsComponent* PlayerStats;
+
 	int CurrentMultiShotCount = 0;
 
 	bool bIsMove;
@@ -63,24 +48,16 @@ protected:
 
 	bool bReadyToFire = false;
 
-	class UAHGameInstance* GI;
-
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
-	
-	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	//
-	//void Move(const FInputActionValue& Value);
 	
 	void Targeting();
 
 	void Fire();
 
 	class AAHEnemyCharacter* FindNearestEnemy();
-
-	//void AutoTargeting();
 
 	virtual float TakeDamage
 	(
@@ -93,7 +70,8 @@ protected:
 	virtual void OnDeath() override;
 
 public:
+	UAHPlayerStatsComponent* GetPlayerStats() const { return PlayerStats; }
+
 	virtual void UpdateHpBar() override;
 	void GainXp(float Amount);
-	void AddSkill(UAHSkillData* NewSkill);
 };

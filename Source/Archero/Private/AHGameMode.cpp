@@ -4,14 +4,12 @@
 #include "AHGameMode.h"
 #include "AHPlayerCharacter.h"
 #include "AHPlayerController.h"
-#include "AHPlayerState.h"
 #include "AHGameState.h"
 #include "UObject/ConstructorHelpers.h"
 
 AAHGameMode::AAHGameMode()
 {
 	PlayerControllerClass = AAHPlayerController::StaticClass();
-	PlayerStateClass = AAHPlayerState::StaticClass();
 	GameStateClass = AAHGameState::StaticClass();
 
 
@@ -21,13 +19,4 @@ AAHGameMode::AAHGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
-
-	//static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerBPClass(TEXT(""));
-	//
-	//if (PlayerControllerBPClass.Class != nullptr)
-	//{
-	//	DefaultPawnClass = PlayerControllerBPClass.Class;
-	//}
-	//
-	//GameStateClass = AVSDefaultGameState::StaticClass();
 }

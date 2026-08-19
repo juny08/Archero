@@ -16,6 +16,7 @@ class ARCHERO_API AAHPlayerController : public APlayerController
 	
 public:
     AAHPlayerController();
+	void BindPlayerStats(class UAHPlayerStatsComponent* PlayerStats);
 
 protected:
     virtual void BeginPlay() override;
@@ -38,6 +39,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<class UAHPauseWidget> PauseWidgetClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<class UAHResultWidget> ResultWidgetClass;
+
 	// UI Instance
 	UPROPERTY()
 	class UAHPlayWidget* PlayWidgetInstance = nullptr;
@@ -54,6 +58,9 @@ protected:
 	UPROPERTY()
 	class UAHPauseWidget* PauseWidgetInstance = nullptr;
 
+	UPROPERTY()
+	class UAHResultWidget* ResultWidgetInstance = nullptr;
+
 private:
 	void InitializeUI();
 
@@ -65,11 +72,13 @@ public:
 	void HideLevelUpUI();
 
 	void ShowGameoverUI();
+	void HideGameoverUI();
 
 	void ShowPauseUI();
 	void HidePauseUI();
 
-	void HideGameoverUI();
+	void ShowResultUI();
+	void HideResultUI();
 
 	UFUNCTION()
 	void OnLevelUp(int NewLevel);

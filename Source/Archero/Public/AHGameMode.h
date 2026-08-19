@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(abstract)
+UCLASS()
 class ARCHERO_API AAHGameMode : public AGameModeBase
 {
 	GENERATED_BODY()

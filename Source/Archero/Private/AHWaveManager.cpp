@@ -2,7 +2,7 @@
 #include "AHGameState.h"
 #include "AHEnemySpawnPoint.h"
 #include "AHGameInstance.h"
-#include "AHStageGate.h"
+#include "AHGate.h"
 #include "Kismet/GameplayStatics.h"
 
 AAHWaveManager::AAHWaveManager()
@@ -53,8 +53,6 @@ void AAHWaveManager::StartWave()
 {
 	AliveEnemies = 0;
 
-	
-
 	if (GS)
 	{
 		GS->CurrentWave = CurrentWaveIndex + 1;
@@ -96,12 +94,9 @@ void AAHWaveManager::NextLevel()
 	UAHGameInstance* GI = GetGameInstance<UAHGameInstance>();
 
 	GI->CurrentStage++;
-	//GS->CurrentStage++; // GameInstance로 옮길거임
 	GS->CurrentWave = 1;
 	
-	StageGate->GateOpen();
-
-	//UGameplayStatics::OpenLevel(this, StageLevels[GS->CurrentStage]);
+	Gate->GateOpen();
 }
 
 void AAHWaveManager::OnEnemyKilled()

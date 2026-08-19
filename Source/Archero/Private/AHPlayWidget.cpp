@@ -2,31 +2,22 @@
 
 
 #include "AHPlayWidget.h"
-//#include "AHPlayerState.h"
-#include "AHGameInstance.h"
 #include "AHPlayerController.h"
+#include "AHPlayerStatsComponent.h"
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 
-void UAHPlayWidget::TryBindGameInstance()
+void UAHPlayWidget::TryBindPlayerStats()
 {
-	//APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	//if (!PC) return;
-	//
-	//AAHPlayerState* PS = PC->GetPlayerState<AAHPlayerState>();
-
-	UAHGameInstance* GI = GetGameInstance<UAHGameInstance>();
-
-	if (GI)
+	if (AAHPlayerCharacter* Player = Cast<AAHPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)))
 	{
-		GI->OnLevelUp.AddDynamic(this, &UAHPlayWidget::UpdateLevel);
-		GI->OnXPChanged.AddDynamic(this, &UAHPlayWidget::UpdateXp);
+		UAHPlayerStatsComponent* PlayerStats = Player->GetPlayerStats();
+		PlayerStats->OnLevelUp.AddDynamic(this, &UAHPlayWidget::UpdateLevel);
+		PlayerStats->OnXPChanged.AddDynamic(this, &UAHPlayWidget::UpdateXp);
 
-		// 처음 켜졌을 때의 초기값 반영
-		UpdateLevel(GI->GetLevel());
-		UpdateXp(GI->GetXP(), 100.f);
+		UpdateLevel(PlayerStats->GetLevel());
+		UpdateXp(PlayerStats->GetXP(), PlayerStats->GetMaxXP());
 
-		// 연결 성공했으므로 타이머 해제
 		GetWorld()->GetTimerManager().ClearTimer(BindingTimerHandle);
 	}
 
@@ -43,22 +34,12 @@ void UAHPlayWidget::NativeConstruct()
 	GetWorld()->GetTimerManager().SetTimer(
 		BindingTimerHandle,
 		this,
-		&UAHPlayWidget::TryBindGameInstance,
+		&UAHPlayWidget::TryBindPlayerStats,
 		0.1f,
 		true
 	);
 
 	XpBar = CastChecked<UProgressBar>(GetWidgetFromName(TEXT("XpBar")));
-}
-
-void UAHPlayWidget::NativeTick(const FGeometry & MyGeometry, float DeltaTime)
-{
-	Super::NativeTick(MyGeometry, DeltaTime);
-
-	//if (IsValid(XpBar) /*&& IsValid(currentState)*/)
-	//{
-	//	//XpBar->SetPercent(currentCharacter->);
-	//}
 }
 
 void UAHPlayWidget::UpdateLevel(int NewLevel)

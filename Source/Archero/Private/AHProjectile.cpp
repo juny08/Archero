@@ -7,17 +7,14 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-// Sets default values
 AAHProjectile::AAHProjectile()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	RootComponent = SphereComp;
 	SphereComp->InitSphereRadius(15.0f);
 
-	//SphereComp->SetCollisionProfileName(TEXT("BlockAllDynamic"));
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SphereComp->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 
@@ -26,16 +23,14 @@ AAHProjectile::AAHProjectile()
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->UpdatedComponent = SphereComp;
-	ProjectileMovement->InitialSpeed = InitialSpeed; // 초기 속도
-	ProjectileMovement->MaxSpeed = MaxSpeed;     // 최대 속도
-	ProjectileMovement->bRotationFollowsVelocity = true; // 날아가는 방향으로 회전
-	ProjectileMovement->ProjectileGravityScale = 0.f;    // 중력 영향 0
+	ProjectileMovement->InitialSpeed = InitialSpeed;
+	ProjectileMovement->MaxSpeed = MaxSpeed;
+	ProjectileMovement->bRotationFollowsVelocity = true;
+	ProjectileMovement->ProjectileGravityScale = 0.f;
 
-	//SphereComp->OnComponentHit.AddDynamic(this, &AAHProjectile::OnHit);
 	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &AAHProjectile::OnProjectileOverlap);
 }
 
-// Called when the game starts or when spawned
 void AAHProjectile::BeginPlay()
 {
 	Super::BeginPlay();
@@ -58,11 +53,3 @@ void AAHProjectile::OnProjectileOverlap(UPrimitiveComponent* OverlappedComp, AAc
 		Destroy();
 	}
 }
-
-// Called every frame
-void AAHProjectile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-

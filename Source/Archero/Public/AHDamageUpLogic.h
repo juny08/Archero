@@ -15,8 +15,11 @@ class ARCHERO_API UAHDamageUpLogic : public UAHSkillLogic
 	GENERATED_BODY()
 	
 public:
-    virtual void Activate_Implementation(UAHGameInstance* GI, float Value) override
+    virtual void Activate_Implementation(UAHPlayerStatsComponent* PlayerStats, float Value) override
     {
-        GI->BonusDamage += Value;
+        if (PlayerStats)
+        {
+            PlayerStats->AddBonusDamage(Value);
+        }
     }
 };

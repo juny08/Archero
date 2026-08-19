@@ -15,9 +15,9 @@ class ARCHERO_API UAHAttackSpeedLogic : public UAHSkillLogic
 	GENERATED_BODY()
 
 public:
-    virtual void Activate_Implementation(UAHGameInstance* GI, float Value) override
+    virtual void Activate_Implementation(UAHPlayerStatsComponent* PlayerStats, float Value) override
     {
-        if (GI->AttackDelay <= 0.5f) return;
-        GI->SetAttackDelay(GI->AttackDelay - Value);
+        if (!PlayerStats || PlayerStats->GetAttackDelay() <= 0.5f) return;
+        PlayerStats->SetAttackDelay(PlayerStats->GetAttackDelay() - Value);
     }
 };

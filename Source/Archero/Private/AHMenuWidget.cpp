@@ -2,6 +2,7 @@
 
 
 #include "AHMenuWidget.h"
+#include "AHGameInstance.h"
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -23,6 +24,11 @@ void UAHMenuWidget::NativeConstruct()
 
 void UAHMenuWidget::OnStartClicked()
 {
+	if (UAHGameInstance* GameInstance = GetGameInstance<UAHGameInstance>())
+	{
+		GameInstance->ResetRun();
+	}
+
 	UGameplayStatics::OpenLevel(this, FName("Stage1"));
 }
 

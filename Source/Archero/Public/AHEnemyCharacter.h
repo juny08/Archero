@@ -1,18 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "AHDefaultCharacter.h"
 #include "AHEnemyCharacter.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class ARCHERO_API AAHEnemyCharacter : public AAHDefaultCharacter
 {
 	GENERATED_BODY()
+
 public:
 	AAHEnemyCharacter();
 
@@ -21,6 +17,13 @@ public:
 	float GetAttackRange() const { return attackRange; }
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats", meta = (AllowAbstract = "true"))
+	float HealthMax;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats", meta = (AllowAbstract = "true"))
+	float HealthCurrent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats", meta = (AllowAbstract = "true"))
+	float MoveSpeed;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Reward")
 	float dropXp = 100.f;
 
@@ -35,5 +38,17 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	virtual float TakeDamage
+	(
+		float DamageAmount,
+		struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator,
+		AActor* DamageCauser
+	) override;
+
 	virtual void OnDeath() override;
+
+	inline float GetHealthRate() { return HealthCurrent / HealthMax; }
+
+	virtual void UpdateHpBar() override;
 };

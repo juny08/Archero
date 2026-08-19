@@ -15,8 +15,11 @@ class ARCHERO_API UAHForwardArrowLogic : public UAHSkillLogic
 	GENERATED_BODY()
 	
 public:
-	virtual void Activate_Implementation(UAHGameInstance* GI, float Value) override
+	virtual void Activate_Implementation(UAHPlayerStatsComponent* PlayerStats, float Value) override
     {
-        GI->ForwardArrowCount += (int)Value;
+        if (PlayerStats)
+        {
+            PlayerStats->AddForwardArrow(FMath::RoundToInt(Value));
+        }
     }
 };
